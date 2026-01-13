@@ -72,10 +72,10 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
             height: 100vh;
             background: rgba(0, 0, 0, 0.9);
             display: flex;
-            align-items: center;
+            align-items: flex-start; /* center から flex-start に変更 */
             justify-content: center;
             z-index: 99999;
-            padding: 1rem;
+            padding: 3rem 1rem; /* 上下に余白を持たせる */
             backdrop-filter: blur(8px);
             overflow-y: auto;
           }
@@ -86,11 +86,11 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
             border-radius: 20px;
             max-width: 700px;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
+            /* max-height と overflow-y を削除して、オーバーレイでのスクロールに任せる */
             padding: 2.5rem;
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin: auto; /* 上下のマージンを確保 */
           }
 
           .modal-close {
