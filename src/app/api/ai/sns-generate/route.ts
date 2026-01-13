@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
             .eq('id', user.id)
             .single();
 
-        const apiKey = userData?.settings?.gemini_api_key || process.env.GEMINI_API_KEY;
+        const apiKey = userData?.settings?.gemini_api_key || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
             return NextResponse.json({ error: 'API key not configured' }, { status: 500 });
         }

@@ -1,10 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize Gemini API
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not set in environment variables');
+    throw new Error('GOOGLE_GENERATIVE_AI_API_KEY is not set in environment variables');
 }
 
 const genAI = new GoogleGenerativeAI(apiKey);
