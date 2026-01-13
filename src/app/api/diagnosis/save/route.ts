@@ -4,7 +4,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 export async function POST(request: NextRequest) {
     try {
         const supabase = await createClient();
-        const adminSupabase = createAdminClient();
+        const adminSupabase = await createAdminClient();
 
         const {
             data: { user },
