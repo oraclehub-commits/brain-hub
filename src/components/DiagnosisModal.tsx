@@ -112,7 +112,7 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content diagnosis-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="diagnosis-modal" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>
           <X size={24} />
         </button>
@@ -160,6 +160,8 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             left: 0;
             right: 0;
             bottom: 0;
+            width: 100vw;
+            height: 100vh;
             background: rgba(0, 0, 0, 0.85);
             display: flex;
             align-items: center;
@@ -203,7 +205,7 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s;
-            z-index: 10;
+            z-index: 9999;
           }
 
           .modal-close:hover {
