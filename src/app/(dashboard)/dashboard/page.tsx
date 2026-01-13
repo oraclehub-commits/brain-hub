@@ -118,61 +118,50 @@ export default function DashboardPage() {
   return (
     <div className="dashboard-home">
       {/* Welcome Section */}
-      <section className="welcome-section animate-fade-in">
-        <div className="welcome-content">
-          <h1 className="welcome-title">
-            おかえりなさい、<span className="text-gradient">ゲスト</span>さん
-          </h1>
-          <p className="welcome-subtitle">
-            今日も一緒に、あなたのビジネスを加速させましょう。
-          </p>
-        </div>
-        <div className="oracle-tip glass-card">
-          <div className="tip-header">
-            <Sparkles size={18} className="tip-icon" />
-            <span>Oracleからの提案</span>
-          </div>
-          <p className="tip-content">
-            最近SNS投稿が減っているようです。継続的な発信がフォロワーとの信頼構築に繋がります。
-            今日1投稿を目標にしてみませんか？
-          </p>
-        </div>
+      <section className="welcome-section">
+        <h1 className="welcome-title animate-fade-in">
+          Welcome back, <span className="text-gradient">Commander</span>
+        </h1>
+        <p className="welcome-subtitle animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          本日の戦略を実行しましょう。
+        </p>
       </section>
 
-      {/* Diagnosis Result Card */}
+      {/* Diagnosis Section (HUD Style) */}
       {!loading && (
         <section className="diagnosis-section animate-fade-in" style={{ animationDelay: '0.2s' }}>
           {diagnosisResult ? (
-            <div className="diagnosis-card glass-card oracle-glow">
-              <div className="diagnosis-header">
-                <div className="diagnosis-icon-large">{diagnosisResult.artwork}</div>
-                <div className="diagnosis-info">
-                  <h2 className="diagnosis-title">
-                    あなたの脳タイプ: <span className="type-name text-gradient">{diagnosisResult.type}</span>
-                  </h2>
-                  <p className="diagnosis-subtitle">{diagnosisResult.name}</p>
-                </div>
-              </div>
+            <div className="diagnosis-card glass-card">
+              <div className="diagnosis-bg-glow" />
               <div className="diagnosis-content">
-                <p className="diagnosis-catchcopy">"{diagnosisResult.catchcopy}"</p>
+                <div className="diagnosis-icon-wrapper">
+                  <span style={{ fontSize: '2rem' }}>{diagnosisResult.artwork || <Brain size={32} />}</span>
+                </div>
+                <div className="diagnosis-info">
+                  <div className="diagnosis-label">Current Strategy Pattern</div>
+                  <h2 className="diagnosis-title">
+                    CODE: <span className="text-gradient">{diagnosisResult.type}</span>
+                  </h2>
+                  <p className="diagnosis-catchcopy">p.{diagnosisResult.name} // {diagnosisResult.catchcopy}</p>
+                </div>
                 <button
-                  className="btn btn-accent"
+                  className="btn btn-primary"
                   onClick={() => setShowResultModal(true)}
                 >
-                  <Brain size={18} />
-                  詳細を確認する
+                  データ詳細
                 </button>
               </div>
             </div>
           ) : (
-            <div className="diagnosis-card glass-card">
+            <div className="diagnosis-card glass-card empty">
               <div className="diagnosis-empty">
-                <Brain size={48} className="empty-icon" />
-                <h3>まだ脳タイプ診断を受けていません</h3>
-                <p>30秒で、あなたの思考OSを特定しましょう</p>
-                <Link href="/" className="btn btn-primary">
-                  <Brain size={18} />
-                  今すぐ診断を受ける
+                <Brain size={42} className="text-muted" />
+                <div>
+                  <h3>No Strategy Data</h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>思考OSが未特定です。診断を実行してロックを解除してください。</p>
+                </div>
+                <Link href="/dashboard/finance" className="btn btn-accent btn-sm">
+                  診断を実行
                 </Link>
               </div>
             </div>
@@ -188,25 +177,23 @@ export default function DashboardPage() {
       )}
 
       {/* Quick Actions Grid */}
-      <section className="quick-actions">
-        <h2 className="section-title">クイックアクション</h2>
-        <div className="actions-grid">
+      <section className="quick-actions-section animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <h2 className="section-label">COMMAND MODULES</h2>
+        <div className="quick-actions-grid">
           {quickActions.map((action, index) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              className={`action-card glass-card ${action.primary ? 'primary' : ''}`}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div
-                className="action-icon"
-                style={{ background: action.gradient }}
-              >
-                {action.icon}
-              </div>
-              <div className="action-content">
-                <h3 className="action-title">{action.title}</h3>
-                <p className="action-description">{action.description}</p>
+            <Link href={action.href} key={action.href} className="action-card-link">
+              <div className={`action-card glass-card ${action.primary ? 'primary' : ''}`}>
+                <div
+                  className="action-icon-wrapper"
+                  style={{ background: action.gradient }}
+                >
+                  {action.icon}
+                </div>
+                <div className="action-info">
+                  <h3>{action.title}</h3>
+                  <p>{action.description}</p>
+                </div>
+                <div className="action-glow" style={{ background: action.gradient }} />
               </div>
             </Link>
           ))}
@@ -312,183 +299,239 @@ export default function DashboardPage() {
           padding: 2rem;
         }
 
-        .diagnosis-header {
-          display: flex;
-          align-items: center;
-          gap: 1.5rem;
-          margin-bottom: 1.5rem;
+        /* Diagnosis Card (HUD) */
+        .diagnosis-card {
+           position: relative;
+           overflow: hidden;
+           border: 1px solid rgba(139, 92, 246, 0.3);
+           background: rgba(15, 15, 25, 0.6);
+           margin-bottom: 3rem;
+           transition: all 0.3s ease;
+        }
+        
+        .diagnosis-card:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
         }
 
-        .diagnosis-icon-large {
-          font-size: 4rem;
-          filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+        .diagnosis-card.empty {
+            border-style: dashed;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .diagnosis-empty {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
-        .diagnosis-title {
-          font-size: 1.5rem;
-          font-weight: 700;
-          margin-bottom: 0.5rem;
-        }
-
-        .type-name {
-          font-size: 1.75rem;
-        }
-
-        .diagnosis-subtitle {
-          font-size: 1rem;
-          color: var(--text-secondary);
+        .diagnosis-bg-glow {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 100%;
+            background: radial-gradient(circle at 100% 50%, rgba(139, 92, 246, 0.15), transparent 70%);
+            pointer-events: none;
         }
 
         .diagnosis-content {
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          gap: 1.5rem;
+          padding: 2rem;
+          position: relative;
+          z-index: 1;
+        }
+
+        .diagnosis-icon-wrapper {
+          width: 72px;
+          height: 72px;
+          border-radius: 20px;
+          background: rgba(139, 92, 246, 0.1);
+          border: 1px solid rgba(139, 92, 246, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--color-primary-400);
+          box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
+        }
+
+        .diagnosis-info {
+          flex: 1;
+        }
+
+        .diagnosis-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .diagnosis-title {
+          font-size: 1.75rem;
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+          letter-spacing: -0.02em;
+        }
+        
+        .diagnosis-catchcopy {
+            color: var(--text-secondary);
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Quick Actions */
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+            border-left: 3px solid var(--color-accent-500);
+            text-transform: uppercase;
+        }
+
+        .quick-actions-section {
+          margin-bottom: 3rem;
+        }
+
+        .quick-actions-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 1.5rem;
         }
 
-        .diagnosis-catchcopy {
-          flex: 1;
-          font-size: 1rem;
-          font-style: italic;
-          color: var(--text-secondary);
-          border-left: 4px solid var(--color-accent-500);
-          padding-left: 1rem;
-          line-height: 1.6;
-        }
-
-        .diagnosis-empty {
-          text-align: center;
-          padding: 2rem 1rem;
-        }
-
-        .empty-icon {
-          color: var(--text-muted);
-          margin: 0 auto 1rem;
-        }
-
-        .diagnosis-empty h3 {
-          font-size: 1.125rem;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-        }
-
-        .diagnosis-empty p {
-          color: var(--text-secondary);
-          margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-          font-size: 1.125rem;
-          font-weight: 600;
-          margin-bottom: 1rem;
-          color: var(--text-primary);
-        }
-
-        .quick-actions {
-          margin-bottom: 2.5rem;
-        }
-
-        .actions-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 1rem;
+        .action-card-link {
+            text-decoration: none;
         }
 
         .action-card {
+          padding: 1.5rem;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           gap: 1rem;
-          padding: 1.25rem;
-          text-decoration: none;
-          transition: all var(--transition-base);
-          animation: fade-in 0.4s ease-out forwards;
-          opacity: 0;
+          height: 100%;
+          position: relative;
+          overflow: hidden;
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .action-card:hover {
           transform: translateY(-4px);
-          border-color: var(--color-primary-500);
         }
 
-        .action-card.primary {
-          grid-column: span 2;
-          background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%);
-          border-color: var(--color-primary-500);
-        }
-
-        .action-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        .action-icon-wrapper {
           width: 48px;
           height: 48px;
           border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           color: white;
           flex-shrink: 0;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          z-index: 1;
         }
 
-        .action-title {
-          font-size: 1rem;
-          font-weight: 600;
-          color: var(--text-primary);
+        .action-info {
+           z-index: 1;
+        }
+
+        .action-info h3 {
+          font-size: 1.1rem;
           margin-bottom: 0.25rem;
+          color: var(--text-primary);
+          font-weight: 600;
         }
 
-        .action-description {
-          font-size: 0.875rem;
+        .action-info p {
+          font-size: 0.85rem;
           color: var(--text-secondary);
+          line-height: 1.4;
         }
 
+        .action-glow {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            filter: blur(40px);
+            opacity: 0.15;
+            transition: opacity 0.3s ease;
+        }
+
+        .action-card:hover .action-glow {
+            opacity: 0.3;
+        }
+        
+        /* Loading & Errors */
+        .diagnosis-empty h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Stats (Legacy Support) */
         .stats-section {
-          margin-bottom: 2rem;
+            margin-bottom: 2rem;
         }
 
         .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
         }
 
         .stat-card {
-          text-align: center;
-          padding: 1.5rem 1rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .stat-value {
-          font-size: 2rem;
-          font-weight: 700;
-          margin-bottom: 0.25rem;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
         }
-
+        
         .stat-label {
-          font-size: 0.875rem;
-          color: var(--text-muted);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         @media (max-width: 768px) {
-          .welcome-section {
-            grid-template-columns: 1fr;
+          .welcome-title {
+            font-size: 2rem;
           }
-
-          .diagnosis-header {
-            flex-direction: column;
-            text-align: center;
-          }
-
+          
           .diagnosis-content {
             flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+            padding: 1.5rem;
           }
 
-          .diagnosis-icon-large {
-            font-size: 3rem;
+          .diagnosis-bg-glow {
+            width: 100%;
+            height: 50%;
+            top: 0;
+            background: linear-gradient(to bottom, rgba(139, 92, 246, 0.15), transparent);
           }
-
-          .action-card.primary {
-            grid-column: span 1;
-          }
-
+          
           .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
           }
         }
       `}</style>

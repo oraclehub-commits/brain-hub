@@ -61,7 +61,7 @@ export function Header({ userName, avatarUrl, subscription }: HeaderProps) {
         {!isPro && (
           <div className="free-badge">
             <span className="badge badge-free">FREE</span>
-            <button className="btn btn-accent btn-sm">
+            <button className="btn-upgrade-sm">
               PROにアップグレード
             </button>
           </div>
@@ -106,13 +106,17 @@ export function Header({ userName, avatarUrl, subscription }: HeaderProps) {
       <style jsx>{`
         .header {
           position: fixed;
-          top: 0;
-          left: 260px;
-          right: 0;
+          top: 1rem;
+          left: 290px; /* Align with main content */
+          right: 1rem;
           height: 64px;
-          background: var(--bg-surface);
-          border-bottom: 1px solid var(--glass-border);
+          background: rgba(10, 10, 15, 0.6);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 16px;
           z-index: 40;
+          transition: all var(--transition-base);
         }
 
         .header-content {
@@ -129,66 +133,84 @@ export function Header({ userName, avatarUrl, subscription }: HeaderProps) {
           align-items: center;
           gap: 0.5rem;
           padding: 0.5rem 1rem;
-          background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
-          border: 1px solid rgba(6, 182, 212, 0.3);
+          background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+          border: 1px solid rgba(6, 182, 212, 0.2);
           border-radius: 9999px;
-          font-size: 0.875rem;
-          font-weight: 500;
+          font-size: 0.8rem;
+          font-weight: 600;
           color: var(--color-accent-400);
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.1);
         }
 
+        /* Enhanced Free Badge */
         .free-badge {
           display: flex;
           align-items: center;
           gap: 0.75rem;
+          background: rgba(255, 255, 255, 0.03);
+          padding: 0.25rem 0.25rem 0.25rem 1rem;
+          border-radius: 9999px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .btn-sm {
-          padding: 0.5rem 1rem;
-          font-size: 0.75rem;
+        .badge-free {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.05em;
         }
 
-        .user-menu {
-          position: relative;
+        .btn-upgrade-sm {
+           background: linear-gradient(135deg, var(--color-gold-500), var(--color-gold-600));
+           color: #000;
+           font-weight: 700;
+           font-size: 0.75rem;
+           padding: 0.4rem 1rem;
+           border-radius: 9999px;
+           border: none;
+           cursor: pointer;
+           transition: transform var(--transition-fast);
+        }
+        
+        .btn-upgrade-sm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
         }
 
         .user-menu-trigger {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          padding: 0.5rem;
-          background: transparent;
-          border: 1px solid var(--glass-border);
-          border-radius: 12px;
+          padding: 0.4rem;
+          padding-right: 0.8rem;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 9999px;
           cursor: pointer;
           transition: all var(--transition-fast);
         }
 
         .user-menu-trigger:hover {
-          background: var(--bg-hover);
-          border-color: var(--color-primary-500);
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.1);
         }
 
-        .avatar {
-          width: 32px;
-          height: 32px;
+        .avatar, .avatar-placeholder {
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
-          object-fit: cover;
         }
 
         .avatar-placeholder {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: var(--bg-hover);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--text-muted);
+            background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .user-name {
-          font-size: 0.875rem;
+          font-size: 0.9rem;
           font-weight: 500;
           color: var(--text-primary);
         }
@@ -202,69 +224,65 @@ export function Header({ userName, avatarUrl, subscription }: HeaderProps) {
           transform: rotate(180deg);
         }
 
+        /* Float Dropdown */
         .user-dropdown {
           position: absolute;
-          top: calc(100% + 0.5rem);
+          top: calc(100% + 1rem);
           right: 0;
-          width: 240px;
-          padding: 0.75rem;
+          width: 260px;
+          padding: 0.5rem;
+          background: rgba(15, 15, 25, 0.95);
+          z-index: 100;
         }
 
         .dropdown-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0.5rem;
+            padding: 1rem;
         }
 
         .dropdown-email {
-          font-size: 0.875rem;
-          color: var(--text-secondary);
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
         }
 
-        .dropdown-divider {
-          height: 1px;
-          background: var(--glass-border);
-          margin: 0.5rem 0;
-        }
-
-        .dropdown-menu {
-          list-style: none;
+        .badge-pro {
+            background: linear-gradient(135deg, var(--color-gold-500), var(--color-gold-600));
+            color: black;
+            font-weight: 800;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
         }
 
         .dropdown-menu li a,
         .dropdown-menu li button {
-          display: block;
-          width: 100%;
-          padding: 0.625rem 0.5rem;
-          text-align: left;
-          font-size: 0.875rem;
-          color: var(--text-secondary);
-          text-decoration: none;
-          background: transparent;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all var(--transition-fast);
+             border-radius: 8px;
+             margin-bottom: 2px;
         }
 
-        .dropdown-menu li a:hover,
-        .dropdown-menu li button:hover {
-          background: var(--bg-hover);
-          color: var(--text-primary);
-        }
-
-        .dropdown-menu li.danger button {
-          color: var(--color-error-400);
+        .dropdown-menu li.danger button:hover {
+            background: rgba(239, 68, 68, 0.1);
         }
 
         @media (max-width: 768px) {
           .header {
             left: 0;
+            top: 0;
+            right: 0;
+            width: 100%;
+            border-radius: 0;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            background: rgba(10, 10, 15, 0.9);
           }
 
           .user-name {
             display: none;
+          }
+          
+          .free-badge {
+            display: none; /* Hide upgrade button on mobile header to save space */
           }
         }
       `}</style>
