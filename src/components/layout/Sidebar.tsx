@@ -179,6 +179,9 @@ export function Sidebar() {
           flex: 1;
           padding: 1.5rem 1rem;
           overflow-y: auto;
+          /* Custom Scrollbar for Sidebar */
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
         }
 
         .nav-list {
@@ -186,13 +189,15 @@ export function Sidebar() {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
+          padding: 0;
+          margin: 0;
         }
 
         .nav-link {
           position: relative;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 1rem; /* Ensure gap between icon and text */
           padding: 0.875rem 1rem;
           border-radius: 12px;
           color: var(--text-secondary);
@@ -202,6 +207,7 @@ export function Sidebar() {
           transition: all var(--transition-base);
           border: 1px solid transparent;
           overflow: hidden;
+          white-space: nowrap; /* Prevent text wrapping */
         }
 
         .nav-link:hover {

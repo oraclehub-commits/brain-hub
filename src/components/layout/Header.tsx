@@ -107,8 +107,8 @@ export function Header({ userName, avatarUrl, subscription }: HeaderProps) {
         .header {
           position: fixed;
           top: 1rem;
-          left: 290px; /* Align with main content */
-          right: 1rem;
+          left: 280px; /* Sidebar width (260px) + gap (20px) */
+          right: 2rem; /* Match main content padding */
           height: 64px;
           background: rgba(10, 10, 15, 0.6);
           backdrop-filter: blur(12px);

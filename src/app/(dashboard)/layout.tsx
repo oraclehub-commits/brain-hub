@@ -72,22 +72,26 @@ export default function DashboardLayout({
         }
 
         .dashboard-main {
-          margin-left: 290px; /* 260px (sidebar) + 1rem (gap) + 1rem (left) */
+          margin-left: 280px; /* Sidebar width + gap */
           margin-right: 1rem;
-          margin-top: 1rem;
-          padding: 2rem;
-          min-height: calc(100vh - 2rem);
+          margin-top: 0;
+          padding-top: 100px; /* Ensure content starts below the floating header */
+          padding-left: 2rem;
+          padding-right: 2rem;
+          padding-bottom: 2rem;
+          min-height: 100vh;
           background: transparent;
-          /* Optional: Glass panel for main content area if needed, but keeping clean for now */
         }
 
         @media (max-width: 768px) {
           .dashboard-main {
             margin-left: 0;
             margin-right: 0;
-            margin-top: 64px; /* Header height */
-            margin-bottom: 80px; /* Bottom nav height */
-            padding: 1rem;
+            margin-top: 0;
+            padding-top: 80px; /* Header height + gap */
+            padding-bottom: 100px; /* Bottom nav height */
+            padding-left: 1rem;
+            padding-right: 1rem;
           }
         }
       `}</style>
