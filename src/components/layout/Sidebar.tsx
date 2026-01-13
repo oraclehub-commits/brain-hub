@@ -89,19 +89,6 @@ export function Sidebar() {
 
       {/* Bottom Section */}
       <div className="sidebar-bottom">
-        {/* Pro Upgrade Card (Sales Whisper) */}
-        <div className="pro-card glass-card">
-          <div className="pro-header">
-            <span className="pro-icon">💎</span>
-            <span className="pro-title">PROプラン</span>
-          </div>
-          <p className="pro-desc">AI軍師の全機能を開放し、ビジネスを加速させる</p>
-          <button className="btn-upgrade">
-            アップグレード
-          </button>
-          <div className="pro-glow" />
-        </div>
-
         <ul className="nav-list bottom-list">
           {bottomNavItems.map((item) => (
             <li key={item.href}>
@@ -121,6 +108,19 @@ export function Sidebar() {
             </button>
           </li>
         </ul>
+
+        {/* Pro Upgrade Card (Sales Whisper) - Moved to bottom */}
+        <div className="pro-card glass-card">
+          <div className="pro-header">
+            <span className="pro-icon">💎</span>
+            <span className="pro-title">PROプラン</span>
+          </div>
+          <p className="pro-desc">ビジネスを加速させる</p>
+          <button className="btn-upgrade">
+            アップグレード
+          </button>
+          <div className="pro-glow" />
+        </div>
       </div>
 
       <style jsx>{`
@@ -262,15 +262,19 @@ export function Sidebar() {
           padding: 1rem;
           border-top: 1px solid rgba(255, 255, 255, 0.05);
           background: rgba(0, 0, 0, 0.2);
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
         }
 
         .pro-card {
           position: relative;
           padding: 1rem;
-          margin-bottom: 1rem;
+          margin-top: 0.5rem;
           background: linear-gradient(135deg, rgba(234, 179, 8, 0.05), rgba(234, 179, 8, 0.01));
           border: 1px solid rgba(234, 179, 8, 0.2);
           overflow: hidden;
+          order: 2; /* Ensure it stays at bottom visually if needed */
         }
 
         .pro-header {
