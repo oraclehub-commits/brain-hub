@@ -43,8 +43,39 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDiagnosisResult();
+    const initDashboard = async () => {
+      await checkPendingDiagnosis();
+      fetchDiagnosisResult();
+    };
+    initDashboard();
   }, []);
+
+  const checkPendingDiagnosis = async () => {
+    try {
+      const pendingDiagnosis = localStorage.getItem('pendingDiagnosis');
+      if (pendingDiagnosis) {
+        const result = JSON.parse(pendingDiagnosis);
+
+        // サーバーに保存
+        const response = await fetch('/api/diagnosis', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: result.type,
+            shadow: result.shadow,
+            solution: result.solution
+          })
+        });
+
+        if (response.ok) {
+          // 保存成功したらローカルストレージをクリア
+          localStorage.removeItem('pendingDiagnosis');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to sync diagnosis:', error);
+    }
+  };
 
   const fetchDiagnosisResult = async () => {
     try {
