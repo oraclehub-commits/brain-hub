@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect } from 'react';
 import { Brain, X, Crown } from 'lucide-react';
 
 interface DiagnosisResultModalProps {
@@ -10,17 +9,14 @@ interface DiagnosisResultModalProps {
 }
 
 export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalProps) {
-  const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
-    setMounted(true);
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, []);
 
-  if (!result || !mounted) return null;
+  if (!result) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
