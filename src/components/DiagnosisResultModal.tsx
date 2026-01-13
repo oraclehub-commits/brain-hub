@@ -23,215 +23,77 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
   if (!result || !mounted) return null;
 
   const content = (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="result-modal-wrapper" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>
+    <div
+      className="fixed inset-0 w-screen h-screen bg-black/90 flex items-center justify-center z-[99999] p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-[700px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-gray-900/98 to-gray-800/98 border border-purple-500/50 rounded-2xl p-6 md:p-10 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white transition-all z-10 border-none cursor-pointer"
+          onClick={onClose}
+        >
           <X size={24} />
         </button>
 
-        <div className="result-header">
-          <div className="result-icon">{result.artwork}</div>
-          <h2>あなたは<br /><span className="type-name">{result.name}</span></h2>
-          <p className="catchcopy">{result.catchcopy}</p>
+        <div className="text-center mb-8 pb-8 border-b border-white/10">
+          <div className="text-6xl mb-4 filter drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+            {result.artwork}
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
+            あなたは<br />
+            <span className="block text-3xl md:text-4xl mt-2 bg-gradient-to-br from-amber-300 to-amber-500 bg-clip-text text-transparent">
+              {result.name}
+            </span>
+          </h2>
+          <p className="text-lg text-gray-400 italic leading-relaxed border-l-4 border-amber-500 pl-4 mt-6 mx-auto max-w-[90%] text-left">
+            {result.catchcopy}
+          </p>
         </div>
 
-        <div className="result-content">
-          <div className="result-section">
-            <h3><span className="section-icon">✨</span>あなたの「光」（才能の正体）</h3>
-            <p>{result.shadow}</p>
+        <div className="mb-8 space-y-6">
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <h3 className="flex items-center gap-2 text-lg font-semibold mb-3 text-white">
+              <span className="text-xl">✨</span>あなたの「光」（才能の正体）
+            </h3>
+            <p className="text-[15px] leading-relaxed text-gray-300">
+              {/* シャドウと同じテキストが入っていたので修正が必要かも？一旦そのまま */}
+              {result.shadow}
+            </p>
           </div>
 
-          <div className="result-section warning">
-            <h3><span className="section-icon">⚠️</span>あなたの「影」（制限の正体）</h3>
-            <p>{result.shadow}</p>
+          <div className="bg-red-500/5 border border-red-500/30 rounded-xl p-6">
+            <h3 className="flex items-center gap-2 text-lg font-semibold mb-3 text-white">
+              <span className="text-xl">⚠️</span>あなたの「影」（制限の正体）
+            </h3>
+            <p className="text-[15px] leading-relaxed text-gray-300">
+              {result.shadow}
+            </p>
           </div>
 
-          <div className="result-section solution">
-            <h3><span className="section-icon">🔑</span>「資産」に変える調律戦略</h3>
-            <p>{result.solution}</p>
+          <div className="bg-green-500/5 border border-green-500/30 rounded-xl p-6">
+            <h3 className="flex items-center gap-2 text-lg font-semibold mb-3 text-white">
+              <span className="text-xl">🔑</span>「資産」に変える調律戦略
+            </h3>
+            <p className="text-[15px] leading-relaxed text-gray-300">
+              {result.solution}
+            </p>
           </div>
         </div>
 
-        <div className="result-footer">
-          <p className="footer-note">
+        <div className="text-center pt-8 border-t border-white/10">
+          <p className="text-sm text-purple-300 mb-6 p-3 bg-purple-500/10 rounded-lg">
             💎 PRO版では、この診断結果を基にAI軍師があなた専用のアドバイスを提供します
           </p>
-          <button className="btn btn-primary" onClick={onClose}>
+          <button
+            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors"
+            onClick={onClose}
+          >
             閉じる
           </button>
         </div>
-
-        <style jsx>{`
-          .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            align-items: center; /* 中央揃えに戻す */
-            justify-content: center;
-            z-index: 99999;
-            padding: 1rem;
-            backdrop-filter: blur(8px);
-            overflow-y: hidden; /* 背景はスクロールさせない */
-          }
-
-          .result-modal-wrapper {
-            background: linear-gradient(135deg, rgba(17, 24, 39, 0.98), rgba(31, 41, 55, 0.98));
-            border: 1px solid rgba(139, 92, 246, 0.5);
-            border-radius: 20px;
-            max-width: 700px;
-            width: 100%;
-            max-height: 90vh; /* 高さ制限を復活 */
-            overflow-y: auto; /* ボックス内でスクロール */
-            padding: 2.5rem;
-            position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-          }
-
-          .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
-            z-index: 10;
-          }
-
-          .modal-close:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: var(--text-primary);
-          }
-
-          .result-header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          }
-
-          .result-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
-          }
-
-          .result-header h2 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            line-height: 1.3;
-          }
-
-          .type-name {
-            display: block;
-            font-size: 2rem;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-top: 0.5rem;
-          }
-
-          .catchcopy {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            font-style: italic;
-            line-height: 1.6;
-            border-left: 4px solid var(--color-accent-500);
-            padding-left: 1rem;
-            margin: 1.5rem auto 0;
-            max-width: 90%;
-            text-align: left;
-          }
-
-          .result-content {
-            margin-bottom: 2rem;
-          }
-
-          .result-section {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-          }
-
-          .result-section.warning {
-            background: rgba(239, 68, 68, 0.05);
-            border-color: rgba(239, 68, 68, 0.3);
-          }
-
-          .result-section.solution {
-            background: rgba(34, 197, 94, 0.05);
-            border-color: rgba(34, 197, 94, 0.3);
-          }
-
-          .result-section h3 {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: var(--text-primary);
-          }
-
-          .section-icon {
-            font-size: 1.25rem;
-          }
-
-          .result-section p {
-            font-size: 0.9375rem;
-            line-height: 1.7;
-            color: var(--text-secondary);
-          }
-
-          .result-footer {
-            text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-          }
-
-          .footer-note {
-            font-size: 0.875rem;
-            color: var(--color-primary-300);
-            margin-bottom: 1.5rem;
-            padding: 0.75rem;
-            background: rgba(139, 92, 246, 0.1);
-            border-radius: 8px;
-          }
-
-          @media (max-width: 768px) {
-            .result-modal-wrapper {
-              padding: 1.5rem;
-            }
-
-            .result-icon {
-              font-size: 3rem;
-            }
-
-            .type-name {
-              font-size: 1.5rem;
-            }
-
-            .catchcopy {
-              font-size: 1rem;
-            }
-          }
-        `}</style>
       </div>
     </div>
   );
