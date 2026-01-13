@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MessageSquare, Edit3, Target, CheckSquare, Archive, DollarSign, Sparkles } from 'lucide-react';
+import { MessageSquare, Edit3, Target, CheckSquare, Archive, DollarSign, Sparkles, Brain } from 'lucide-react';
+import { DiagnosisResultModal } from '@/components/DiagnosisResultModal';
 
 const quickActions = [
   {
@@ -36,6 +38,27 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
+  const [diagnosisResult, setDiagnosisResult] = useState<any>(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDiagnosisResult();
+  }, []);
+
+  const fetchDiagnosisResult = async () => {
+    try {
+      const response = await fetch('/api/diagnosis');
+      const data = await response.json();
+      if (data.success && data.hasDiagnosis) {
+        setDiagnosisResult(data.result);
+      }
+    } catch (error) {
+      console.error('Failed to fetch diagnosis:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="dashboard-home">
       {/* Welcome Section */}
@@ -59,6 +82,54 @@ export default function DashboardPage() {
           </p>
         </div>
       </section>
+
+      {/* Diagnosis Result Card */}
+      {!loading && (
+        <section className="diagnosis-section animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          {diagnosisResult ? (
+            <div className="diagnosis-card glass-card oracle-glow">
+              <div className="diagnosis-header">
+                <div className="diagnosis-icon-large">{diagnosisResult.artwork}</div>
+                <div className="diagnosis-info">
+                  <h2 className="diagnosis-title">
+                    あなたの脳タイプ: <span className="type-name text-gradient">{diagnosisResult.type}</span>
+                  </h2>
+                  <p className="diagnosis-subtitle">{diagnosisResult.name}</p>
+                </div>
+              </div>
+              <div className="diagnosis-content">
+                <p className="diagnosis-catchcopy">"{diagnosisResult.catchcopy}"</p>
+                <button
+                  className="btn btn-accent"
+                  onClick={() => setShowResultModal(true)}
+                >
+                  <Brain size={18} />
+                  詳細を確認する
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="diagnosis-card glass-card">
+              <div className="diagnosis-empty">
+                <Brain size={48} className="empty-icon" />
+                <h3>まだ脳タイプ診断を受けていません</h3>
+                <p>30秒で、あなたの思考OSを特定しましょう</p>
+                <Link href="/" className="btn btn-primary">
+                  <Brain size={18} />
+                  今すぐ診断を受ける
+                </Link>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {showResultModal && diagnosisResult && (
+        <DiagnosisResultModal
+          result={diagnosisResult}
+          onClose={() => setShowResultModal(false)}
+        />
+      )}
 
       {/* Quick Actions Grid */}
       <section className="quick-actions">
@@ -175,6 +246,81 @@ export default function DashboardPage() {
           line-height: 1.6;
         }
 
+        .diagnosis-section {
+          margin-bottom: 2.5rem;
+          opacity: 0;
+          animation: fade-in 0.4s ease-out forwards;
+        }
+
+        .diagnosis-card {
+          padding: 2rem;
+        }
+
+        .diagnosis-header {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .diagnosis-icon-large {
+          font-size: 4rem;
+          filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+        }
+
+        .diagnosis-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+        }
+
+        .type-name {
+          font-size: 1.75rem;
+        }
+
+        .diagnosis-subtitle {
+          font-size: 1rem;
+          color: var(--text-secondary);
+        }
+
+        .diagnosis-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 1.5rem;
+        }
+
+        .diagnosis-catchcopy {
+          flex: 1;
+          font-size: 1rem;
+          font-style: italic;
+          color: var(--text-secondary);
+          border-left: 4px solid var(--color-accent-500);
+          padding-left: 1rem;
+          line-height: 1.6;
+        }
+
+        .diagnosis-empty {
+          text-align: center;
+          padding: 2rem 1rem;
+        }
+
+        .empty-icon {
+          color: var(--text-muted);
+          margin: 0 auto 1rem;
+        }
+
+        .diagnosis-empty h3 {
+          font-size: 1.125rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+        }
+
+        .diagnosis-empty p {
+          color: var(--text-secondary);
+          margin-bottom: 1.5rem;
+        }
+
         .section-title {
           font-size: 1.125rem;
           font-weight: 600;
@@ -266,6 +412,19 @@ export default function DashboardPage() {
         @media (max-width: 768px) {
           .welcome-section {
             grid-template-columns: 1fr;
+          }
+
+          .diagnosis-header {
+            flex-direction: column;
+            text-align: center;
+          }
+
+          .diagnosis-content {
+            flex-direction: column;
+          }
+
+          .diagnosis-icon-large {
+            font-size: 3rem;
           }
 
           .action-card.primary {
