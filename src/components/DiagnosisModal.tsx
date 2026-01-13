@@ -4,166 +4,175 @@ import { useState } from 'react';
 import { Brain, X } from 'lucide-react';
 
 interface DiagnosisModalProps {
-    onComplete: (result: any) => void;
-    onClose: () => void;
+  onComplete: (result: any) => void;
+  onClose: () => void;
 }
 
 const QUESTIONS = [
-    {
-        q: "後世に伝え残したい、あなたの「愛」の対象は？",
-        a: [
-            { text: "真理と本質を探求した『知の体系』", types: ['賢者', '職人'] },
-            { text: "人々を魅了し、心を動かす『物語や思想』", types: ['魔術師', '共感者'] },
-            { text: "世界を革新する、全く新しい『概念や技術』", types: ['開拓者', '錬金術師'] },
-            { text: "人々が調和し、協力しあう『共同体』", types: ['調停者', '守護者'] }
-        ]
-    },
-    {
-        q: "あなたを最も奮い立たせるのは？",
-        a: [
-            { text: "手に入る『輝かしい理想の未来』のビジョン", types: ['開拓者', '魔術師'] },
-            { text: "避けるべき『最悪の現実』を回避する戦略", types: ['守護者', '賢者'] },
-            { text: "誰も見たことのないものを創り出す『創造のプロセス』", types: ['錬金術師', '職人'] },
-            { text: "誰かの問題を解決し、貢献できる『感謝の言葉』", types: ['共感者', '調停者'] }
-        ]
-    },
-    {
-        q: "森を旅する時、心を奪われるのは？",
-        a: [
-            { text: "森全体を包む光や風といった『全体の雰囲気』", types: ['調停者', '魔術師'] },
-            { text: "一枚の葉の葉脈、一匹の虫の動きといった『細部の神秘』", types: ['職人', '賢者'] },
-            { text: "まだ誰も踏み入れたことのない『未知の小道』", types: ['開拓者', '錬金術師'] },
-            { text: "共に旅する仲間との『穏やかな時間』", types: ['守護者', '共感者'] }
-        ]
-    },
-    {
-        q: "最高の達成感をもたらすのは？",
-        a: [
-            { text: "信頼する誰かからの『素晴らしい』という賞賛", types: ['共感者', '魔術師'] },
-            { text: "自身の内なる声が告げる『完璧だ』という確信", types: ['職人', '賢者'] },
-            { text: "困難な目標を『達成した』という客観的な事実", types: ['開拓者', '守護者'] },
-            { text: "世界に『新たな価値』を生み出したという実感", types: ['錬金術師', '調停者'] }
-        ]
-    },
-    {
-        q: "変革を起こす時、より心を動かされるのは？",
-        a: [
-            { text: "一人のカリスマが道を切り拓く『英雄の物語』", types: ['開拓者', '魔術師'] },
-            { text: "無数の人々が協力し合う『調和の物語』", types: ['調停者', '守護者'] },
-            { text: "一つの完璧な製品が世界を変える『職人の物語』", types: ['職人', '錬金術師'] },
-            { text: "一つの真実が人々を啓蒙する『賢者の物語』", types: ['賢者', '共感者'] }
-        ]
-    },
-    {
-        q: "チームで優先するのは？",
-        a: [
-            { text: "メンバーの感情に寄り添い『和』を保つこと", types: ['共感者', '調停者'] },
-            { text: "目標達成という『任務』を最短で完了すること", types: ['守護者', '開拓者'] },
-            { text: "最高のクオリティを追求し『傑作』を創ること", types: ['職人', '錬金術師'] },
-            { text: "論理に基づき、最も『合理的』な判断を下すこと", types: ['賢者', '魔術師'] }
-        ]
-    },
-    {
-        q: "制約がなければ、時間を忘れて没頭するのは？",
-        a: [
-            { text: "複雑な問題を解き明かし、体系化すること", types: ['賢者', '調停者'] },
-            { text: "人の相談に乗り、その人が笑顔になるのを見ること", types: ['共感者', '守護者'] },
-            { text: "アイデアを試し、新しい何かを創造すること", types: ['錬金術師', '開拓者'] },
-            { text: "一つの技術やスキルを、ひたすら磨き上げること", types: ['職人', '魔術師'] }
-        ]
-    }
+  {
+    q: "後世に伝え残したい、あなたの「愛」の対象は？",
+    a: [
+      { text: "真理と本質を探求した『知の体系』", types: ['賢者', '職人'] },
+      { text: "人々を魅了し、心を動かす『物語や思想』", types: ['魔術師', '共感者'] },
+      { text: "世界を革新する、全く新しい『概念や技術』", types: ['開拓者', '錬金術師'] },
+      { text: "人々が調和し、協力しあう『共同体』", types: ['調停者', '守護者'] }
+    ]
+  },
+  {
+    q: "あなたを最も奮い立たせるのは？",
+    a: [
+      { text: "手に入る『輝かしい理想の未来』のビジョン", types: ['開拓者', '魔術師'] },
+      { text: "避けるべき『最悪の現実』を回避する戦略", types: ['守護者', '賢者'] },
+      { text: "誰も見たことのないものを創り出す『創造のプロセス』", types: ['錬金術師', '職人'] },
+      { text: "誰かの問題を解決し、貢献できる『感謝の言葉』", types: ['共感者', '調停者'] }
+    ]
+  },
+  {
+    q: "森を旅する時、心を奪われるのは？",
+    a: [
+      { text: "森全体を包む光や風といった『全体の雰囲気』", types: ['調停者', '魔術師'] },
+      { text: "一枚の葉の葉脈、一匹の虫の動きといった『細部の神秘』", types: ['職人', '賢者'] },
+      { text: "まだ誰も踏み入れたことのない『未知の小道』", types: ['開拓者', '錬金術師'] },
+      { text: "共に旅する仲間との『穏やかな時間』", types: ['守護者', '共感者'] }
+    ]
+  },
+  {
+    q: "最高の達成感をもたらすのは？",
+    a: [
+      { text: "信頼する誰かからの『素晴らしい』という賞賛", types: ['共感者', '魔術師'] },
+      { text: "自身の内なる声が告げる『完璧だ』という確信", types: ['職人', '賢者'] },
+      { text: "困難な目標を『達成した』という客観的な事実", types: ['開拓者', '守護者'] },
+      { text: "世界に『新たな価値』を生み出したという実感", types: ['錬金術師', '調停者'] }
+    ]
+  },
+  {
+    q: "変革を起こす時、より心を動かされるのは？",
+    a: [
+      { text: "一人のカリスマが道を切り拓く『英雄の物語』", types: ['開拓者', '魔術師'] },
+      { text: "無数の人々が協力し合う『調和の物語』", types: ['調停者', '守護者'] },
+      { text: "一つの完璧な製品が世界を変える『職人の物語』", types: ['職人', '錬金術師'] },
+      { text: "一つの真実が人々を啓蒙する『賢者の物語』", types: ['賢者', '共感者'] }
+    ]
+  },
+  {
+    q: "チームで優先するのは？",
+    a: [
+      { text: "メンバーの感情に寄り添い『和』を保つこと", types: ['共感者', '調停者'] },
+      { text: "目標達成という『任務』を最短で完了すること", types: ['守護者', '開拓者'] },
+      { text: "最高のクオリティを追求し『傑作』を創ること", types: ['職人', '錬金術師'] },
+      { text: "論理に基づき、最も『合理的』な判断を下すこと", types: ['賢者', '魔術師'] }
+    ]
+  },
+  {
+    q: "制約がなければ、時間を忘れて没頭するのは？",
+    a: [
+      { text: "複雑な問題を解き明かし、体系化すること", types: ['賢者', '調停者'] },
+      { text: "人の相談に乗り、その人が笑顔になるのを見ること", types: ['共感者', '守護者'] },
+      { text: "アイデアを試し、新しい何かを創造すること", types: ['錬金術師', '開拓者'] },
+      { text: "一つの技術やスキルを、ひたすら磨き上げること", types: ['職人', '魔術師'] }
+    ]
+  }
 ];
 
 export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
-    const [currentQuestion, setCurrentQuestion] = useState(0);
-    const [answers, setAnswers] = useState<number[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState<number[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleAnswer = async (answerIndex: number) => {
-        const newAnswers = [...answers, answerIndex];
-        setAnswers(newAnswers);
+  const handleAnswer = async (answerIndex: number) => {
+    const newAnswers = [...answers, answerIndex];
+    setAnswers(newAnswers);
 
-        if (currentQuestion < QUESTIONS.length - 1) {
-            setCurrentQuestion(currentQuestion + 1);
-        } else {
-            // 診断完了
-            setIsSubmitting(true);
-            try {
-                const response = await fetch('/api/diagnosis', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ answers: newAnswers })
-                });
+    if (currentQuestion < QUESTIONS.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      // 診断完了
+      setIsSubmitting(true);
+      try {
+        const response = await fetch('/api/diagnosis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers: newAnswers })
+        });
 
-                const data = await response.json();
-                if (data.success) {
-                    onComplete(data.result);
-                }
-            } catch (error) {
-                console.error('Diagnosis failed:', error);
-            } finally {
-                setIsSubmitting(false);
-            }
+        const data = await response.json();
+        if (data.success) {
+          onComplete(data.result);
         }
-    };
+      } catch (error) {
+        console.error('Diagnosis failed:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
 
-    const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
-    const question = QUESTIONS[currentQuestion];
+  const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
+  const question = QUESTIONS[currentQuestion];
 
-    return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content diagnosis-modal" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}>
-                    <X size={24} />
-                </button>
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content diagnosis-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>
+          <X size={24} />
+        </button>
 
-                <div className="diagnosis-header">
-                    <Brain size={32} className="diagnosis-icon" />
-                    <h2>🧠 脳タイプ診断</h2>
-                    <p>30秒で、あなたの「思考OS」を特定します</p>
-                </div>
+        <div className="diagnosis-header">
+          <Brain size={32} className="diagnosis-icon" />
+          <h2>🧠 脳タイプ診断</h2>
+          <p>30秒で、あなたの「思考OS」を特定します</p>
+        </div>
 
-                <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${progress}%` }} />
-                </div>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progress}%` }} />
+        </div>
 
-                <div className="question-section">
-                    <p className="question-number">質問 {currentQuestion + 1} / {QUESTIONS.length}</p>
-                    <h3 className="question-text">{question.q}</h3>
+        <div className="question-section">
+          <p className="question-number">質問 {currentQuestion + 1} / {QUESTIONS.length}</p>
+          <h3 className="question-text">{question.q}</h3>
 
-                    <div className="answers-grid">
-                        {question.a.map((answer, index) => (
-                            <button
-                                key={index}
-                                className="answer-btn"
-                                onClick={() => handleAnswer(index)}
-                                disabled={isSubmitting}
-                            >
-                                <span className="answer-label">A{index + 1}.</span>
-                                <span className="answer-text">{answer.text}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
+          <div className="answers-grid">
+            {question.a.map((answer, index) => (
+              <button
+                key={index}
+                className="answer-btn"
+                onClick={() => handleAnswer(index)}
+                disabled={isSubmitting}
+              >
+                <span className="answer-label">A{index + 1}.</span>
+                <span className="answer-text">{answer.text}</span>
+              </button>
+            ))}
+          </div>
+        </div>
 
-                {isSubmitting && (
-                    <div className="diagnosis-loading">
-                        <div className="spinner" />
-                        <p>あなたの脳タイプを分析中...</p>
-                    </div>
-                )}
+        {isSubmitting && (
+          <div className="diagnosis-loading">
+            <div className="spinner" />
+            <p>あなたの脳タイプを分析中...</p>
+          </div>
+        )}
 
-                <style jsx>{`
+        <style jsx>{`
           .modal-overlay {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 9999;
             padding: 1rem;
             backdrop-filter: blur(4px);
+            overflow-y: auto;
+          }
+
+          .modal-content {
+            position: relative;
+            margin: auto;
           }
 
           .diagnosis-modal {
@@ -176,6 +185,7 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             overflow-y: auto;
             padding: 2rem;
             position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
           }
 
           .modal-close {
@@ -193,6 +203,7 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s;
+            z-index: 10;
           }
 
           .modal-close:hover {
@@ -207,7 +218,8 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
 
           .diagnosis-icon {
             color: var(--color-primary-400);
-            margin-bottom: 1rem;
+            margin: 0 auto 1rem;
+            display: block;
           }
 
           .diagnosis-header h2 {
@@ -234,7 +246,7 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
           }
 
           .progress-fill {
-            height: 100%;
+            height: 100%;\r
             background: linear-gradient(90deg, #8b5cf6, #3b82f6);
             transition: width 0.3s ease;
           }
@@ -251,6 +263,7 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             font-weight: 600;
             margin-bottom: 1.5rem;
             line-height: 1.5;
+            color: var(--text-primary);
           }
 
           .answers-grid {
@@ -270,12 +283,17 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             text-align: left;
             cursor: pointer;
             transition: all 0.2s;
+            width: 100%;
           }
 
-          .answer-btn:hover {
+          .answer-btn:hover:not(:disabled) {
             background: rgba(139, 92, 246, 0.2);
             border-color: var(--color-primary-500);
             transform: translateY(-2px);
+          }
+
+          .answer-btn:active:not(:disabled) {
+            transform: translateY(0);
           }
 
           .answer-btn:disabled {
@@ -304,6 +322,7 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             align-items: center;
             justify-content: center;
             border-radius: 16px;
+            z-index: 20;
           }
 
           .spinner {
@@ -321,8 +340,17 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
           }
 
           @media (max-width: 768px) {
+            .modal-overlay {
+              padding: 0.5rem;
+            }
+
             .diagnosis-modal {
               padding: 1.5rem;
+              max-height: 95vh;
+            }
+
+            .diagnosis-header h2 {
+              font-size: 1.5rem;
             }
 
             .question-text {
@@ -332,9 +360,23 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             .answer-text {
               font-size: 0.875rem;
             }
+
+            .answer-btn {
+              padding: 0.875rem;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .diagnosis-header h2 {
+              font-size: 1.25rem;
+            }
+
+            .question-text {
+              font-size: 1rem;
+            }
           }
         `}</style>
-            </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 }
