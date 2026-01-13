@@ -198,17 +198,24 @@ export async function PATCH(request: NextRequest) {
         } = await supabase.auth.getUser();
 
         if (!user) {
+            console.error('PATCH /api/diagnosis: No user found');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { type, shadow, solution } = await request.json();
+        console.log('PATCH /api/diagnosis: User ID:', user.id);
+
+        const body = await request.json();
+        const { type, shadow, solution } = body;
+
+        console.log('PATCH /api/diagnosis: Received data:', { type, shadow: shadow?.substring(0, 50), solution: solution?.substring(0, 50) });
 
         if (!type) {
+            console.error('PATCH /api/diagnosis: Type is missing');
             return NextResponse.json({ error: 'Type is required' }, { status: 400 });
         }
 
         // DBに保存（Service Role Keyで）
-        const { error } = await adminSupabase
+        const { error, data } = await adminSupabase
             .from('users')
             .update({
                 oracle_type: type,
@@ -216,17 +223,27 @@ export async function PATCH(request: NextRequest) {
                 oracle_solution: solution,
                 diagnosis_completed_at: new Date().toISOString()
             })
-            .eq('id', user.id);
+            .eq('id', user.id)
+            .select();
 
         if (error) {
-            console.error('Failed to save diagnosis:', error);
-            return NextResponse.json({ error: 'Failed to save diagnosis' }, { status: 500 });
+            console.error('PATCH /api/diagnosis: DB Error:', JSON.stringify(error, null, 2));
+            return NextResponse.json({
+                error: 'Failed to save diagnosis',
+                details: error.message,
+                code: error.code
+            }, { status: 500 });
         }
 
+        console.log('PATCH /api/diagnosis: Success, updated rows:', data?.length || 0);
         return NextResponse.json({ success: true });
     } catch (error: any) {
-        console.error('Save Diagnosis API Error:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error('PATCH /api/diagnosis: Exception:', error);
+        return NextResponse.json({
+            error: 'Internal server error',
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }, { status: 500 });
     }
 }
 

@@ -72,6 +72,8 @@ export default function DashboardPage() {
       if (pendingDiagnosis) {
         const result = JSON.parse(pendingDiagnosis);
 
+        console.log('📝 Syncing diagnosis result:', result);
+
         // サーバーに保存
         const response = await fetch('/api/diagnosis', {
           method: 'PATCH',
@@ -83,10 +85,17 @@ export default function DashboardPage() {
           })
         });
 
-        if (response.ok) {
-          // 保存成功したらローカルストレージをクリア
-          localStorage.removeItem('pendingDiagnosis');
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error('❌ Failed to sync diagnosis:', response.status, data);
+          alert(`診断結果の保存に失敗しました: ${data.error || 'Unknown error'}`);
+          return;
         }
+
+        console.log('✅ Diagnosis synced successfully');
+        // 保存成功したらローカルストレージをクリア
+        localStorage.removeItem('pendingDiagnosis');
       }
     } catch (error) {
       console.error('Failed to sync diagnosis:', error);
