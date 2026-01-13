@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Brain, X } from 'lucide-react';
 
 interface DiagnosisModalProps {
@@ -78,6 +79,16 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   const handleAnswer = async (answerIndex: number) => {
     const newAnswers = [...answers, answerIndex];
@@ -110,7 +121,9 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
   const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
   const question = QUESTIONS[currentQuestion];
 
-  return (
+  if (!mounted) return null;
+
+  const modalContent = (
     <div className="modal-overlay" onClick={onClose}>
       <div className="diagnosis-modal" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>
@@ -376,9 +389,12 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             .question-text {
               font-size: 1rem;
             }
+            }
           }
         `}</style>
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

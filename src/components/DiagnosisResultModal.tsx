@@ -1,56 +1,67 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Brain, X, Crown } from 'lucide-react';
 
 interface DiagnosisResultModalProps {
-    result: any;
-    onClose: () => void;
+  result: any;
+  onClose: () => void;
 }
 
 export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalProps) {
-    if (!result) return null;
+  const [mounted, setMounted] = useState(false);
 
-    return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content result-modal" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}>
-                    <X size={24} />
-                </button>
+  useEffect(() => {
+    setMounted(true);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
-                <div className="result-header">
-                    <div className="result-icon">{result.artwork}</div>
-                    <h2>あなたは<br /><span className="type-name">{result.name}</span></h2>
-                    <p className="catchcopy">{result.catchcopy}</p>
-                </div>
+  if (!result || !mounted) return null;
 
-                <div className="result-content">
-                    <div className="result-section">
-                        <h3><span className="section-icon">✨</span>あなたの「光」（才能の正体）</h3>
-                        <p>{result.shadow}</p>
-                    </div>
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content result-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>
+          <X size={24} />
+        </button>
 
-                    <div className="result-section warning">
-                        <h3><span className="section-icon">⚠️</span>あなたの「影」（制限の正体）</h3>
-                        <p>{result.shadow}</p>
-                    </div>
+        <div className="result-header">
+          <div className="result-icon">{result.artwork}</div>
+          <h2>あなたは<br /><span className="type-name">{result.name}</span></h2>
+          <p className="catchcopy">{result.catchcopy}</p>
+        </div>
 
-                    <div className="result-section solution">
-                        <h3><span className="section-icon">🔑</span>「資産」に変える調律戦略</h3>
-                        <p>{result.solution}</p>
-                    </div>
-                </div>
+        <div className="result-content">
+          <div className="result-section">
+            <h3><span className="section-icon">✨</span>あなたの「光」（才能の正体）</h3>
+            <p>{result.shadow}</p>
+          </div>
 
-                <div className="result-footer">
-                    <p className="footer-note">
-                        💎 PRO版では、この診断結果を基にAI軍師があなた専用のアドバイスを提供します
-                    </p>
-                    <button className="btn btn-primary" onClick={onClose}>
-                        閉じる
-                    </button>
-                </div>
+          <div className="result-section warning">
+            <h3><span className="section-icon">⚠️</span>あなたの「影」（制限の正体）</h3>
+            <p>{result.shadow}</p>
+          </div>
 
-                <style jsx>{`
+          <div className="result-section solution">
+            <h3><span className="section-icon">🔑</span>「資産」に変える調律戦略</h3>
+            <p>{result.solution}</p>
+          </div>
+        </div>
+
+        <div className="result-footer">
+          <p className="footer-note">
+            💎 PRO版では、この診断結果を基にAI軍師があなた専用のアドバイスを提供します
+          </p>
+          <button className="btn btn-primary" onClick={onClose}>
+            閉じる
+          </button>
+        </div>
+
+        <style jsx>{`
           .modal-overlay {
             position: fixed;
             inset: 0;
@@ -215,7 +226,7 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
             }
           }
         `}</style>
-            </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 }
