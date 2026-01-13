@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Brain, X, Crown } from 'lucide-react';
 
 interface DiagnosisResultModalProps {
@@ -9,16 +10,19 @@ interface DiagnosisResultModalProps {
 }
 
 export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalProps) {
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, []);
 
-  if (!result) return null;
+  if (!result || !mounted) return null;
 
-  return (
+  const content = (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content result-modal" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>
@@ -60,12 +64,17 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
         <style jsx>{`
           .modal-overlay {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
             background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 99999;
             padding: 1rem;
             backdrop-filter: blur(8px);
             overflow-y: auto;
@@ -99,6 +108,7 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
             color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s;
+            z-index: 10;
           }
 
           .modal-close:hover {
@@ -225,4 +235,6 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
       </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 }

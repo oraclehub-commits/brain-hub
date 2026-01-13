@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Brain, X } from 'lucide-react';
 
 interface DiagnosisModalProps {
@@ -78,8 +79,10 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
     return () => {
@@ -118,7 +121,9 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
   const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
   const question = QUESTIONS[currentQuestion];
 
-  return (
+  if (!mounted) return null;
+
+  const content = (
     <div className="modal-overlay" onClick={onClose}>
       <div className="diagnosis-modal" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>
@@ -160,8 +165,9 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             <p>あなたの脳タイプを分析中...</p>
           </div>
         )}
+      </div>
 
-        <style jsx>{`
+      <style jsx>{`
           .modal-overlay {
             position: fixed;
             top: 0;
@@ -174,15 +180,10 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
+            z-index: 99999;
             padding: 1rem;
             backdrop-filter: blur(4px);
             overflow-y: auto;
-          }
-
-          .modal-content {
-            position: relative;
-            margin: auto;
           }
 
           .diagnosis-modal {
@@ -387,7 +388,8 @@ export function DiagnosisModal({ onComplete, onClose }: DiagnosisModalProps) {
             }
           }
         `}</style>
-      </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 }
