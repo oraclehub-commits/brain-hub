@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Archive, FileText, Image, Video, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Archive, FileText, Image, Video, Download, Trash2 } from 'lucide-react';
 
 type ItemType = 'document' | 'image' | 'video';
 
@@ -13,26 +13,50 @@ interface ArchiveItem {
     size: string;
 }
 
-const mockItems: ArchiveItem[] = [
-    {
-        id: '1',
-        title: 'クライアントA提案書_最終版.pdf',
-        type: 'document',
-        date: '2026-01-10',
-        size: '2.4 MB',
-    },
-    {
-        id: '2',
-        title: 'セミナー資料_2025年12月.pdf',
-        type: 'document',
-        date: '2025-12-28',
-        size: '8.1 MB',
-    },
-];
-
 export default function ArchivePage() {
-    const [items] = useState<ArchiveItem[]>(mockItems);
+    const [items, setItems] = useState<ArchiveItem[]>([]);
     const [filter, setFilter] = useState<ItemType | 'all'>('all');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetchArchiveItems();
+    }, []);
+
+    const fetchArchiveItems = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('/api/archives');
+            const data = await response.json();
+
+            if (data.success) {
+                setItems(data.items || []);
+            } else {
+                setError('データの取得に失敗しました');
+            }
+        } catch (err) {
+            setError('エラーが発生しました');
+            console.error('Failed to fetch archive items:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('このアイテムを削除しますか？')) return;
+
+        try {
+            const response = await fetch(`/api/archives?id=${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                await fetchArchiveItems();
+            }
+        } catch (err) {
+            console.error('Failed to delete archive item:', err);
+        }
+    };
 
     const filteredItems = filter === 'all'
         ? items
@@ -109,8 +133,11 @@ export default function ArchivePage() {
                                         <span>{item.size}</span>
                                     </div>
                                 </div>
-                                <button className="btn btn-ghost btn-sm">
-                                    <Download size={16} />
+                                <button 
+                                    className="btn btn-ghost btn-sm"
+                                    onClick={() => handleDelete(item.id)}
+                                >
+                                    <Trash2 size={16} />
                                 </button>
                             </div>
                         ))

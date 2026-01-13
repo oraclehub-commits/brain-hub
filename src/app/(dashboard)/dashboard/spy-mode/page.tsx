@@ -1,118 +1,144 @@
 'use client';
 
-import { useState } from 'react';
-import { Eye, Search, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Eye, Search, TrendingUp, Users, BarChart3, Trash2 } from 'lucide-react';
 
 interface Competitor {
-    id: string;
-    name: string;
-    platform: 'instagram' | 'x' | 'facebook';
-    followers: number;
-    engagement: number;
-    lastPost: string;
+  id: string;
+  name: string;
+  platform: 'instagram' | 'facebook' | 'tiktok' | 'youtube';
+  followers: number;
+  engagement: number;
+  lastPost: string;
 }
 
-const mockCompetitors: Competitor[] = [
-    {
-        id: '1',
-        name: '山田花子（コーチング）',
-        platform: 'instagram',
-        followers: 15200,
-        engagement: 4.8,
-        lastPost: '3時間前',
-    },
-    {
-        id: '2',
-        name: '田中太郎（マーケティング）',
-        platform: 'x',
-        followers: 8900,
-        engagement: 3.2,
-        lastPost: '1日前',
-    },
-];
-
 export default function SpyModePage() {
-    const [competitors] = useState<Competitor[]>(mockCompetitors);
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    const getPlatformIcon = (platform: string) => {
-        switch (platform) {
-            case 'instagram': return '📸';
-            case 'x': return '𝕏';
-            case 'facebook': return '📘';
-            default: return '🌐';
-        }
-    };
+  useEffect(() => {
+    fetchCompetitors();
+  }, []);
 
-    return (
-        <div className="spy-mode-page">
-            <header className="page-header">
-                <Eye className="header-icon" size={24} />
-                <div>
-                    <h1>Spy Mode</h1>
-                    <p className="header-subtitle">ライバルの動向を密かに観察し、戦略を練る</p>
+  const fetchCompetitors = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/competitors');
+      const data = await response.json();
+
+      if (data.success) {
+        setCompetitors(data.competitors || []);
+      } else {
+        setError('データの取得に失敗しました');
+      }
+    } catch (err) {
+      setError('エラーが発生しました');
+      console.error('Failed to fetch competitors:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('このライバルを削除しますか？')) return;
+
+    try {
+      const response = await fetch(`/api/competitors?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await fetchCompetitors();
+      }
+    } catch (err) {
+      console.error('Failed to delete competitor:', err);
+    }
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case 'instagram': return '📸';
+      case 'facebook': return '📘';
+      case 'tiktok': return '🎵';
+      case 'youtube': return '🎥';
+      default: return '🌐';
+    }
+  };
+
+  return (
+    <div className="spy-mode-page">
+      <header className="page-header">
+        <Eye className="header-icon" size={24} />
+        <div>
+          <h1>Spy Mode</h1>
+          <p className="header-subtitle">ライバルの動向を密かに観察し、戦略を練る</p>
+        </div>
+      </header>
+
+      <div className="spy-layout">
+        {/* Search Bar */}
+        <div className="search-bar glass-card">
+          <Search size={20} />
+          <input
+            type="text"
+            placeholder="ライバルのアカウント名やURLを入力..."
+            className="search-input"
+          />
+          <button className="btn btn-primary">追加</button>
+
+        </div>
+
+        {/* Competitors Grid */}
+        <div className="competitors-grid">
+          {competitors.map((competitor) => (
+            <div key={competitor.id} className="competitor-card glass-card">
+              <div className="card-header">
+                <div className="name-row">
+                  <span className="platform-icon">{getPlatformIcon(competitor.platform)}</span>
+                  <h3>{competitor.name}</h3>
                 </div>
-            </header>
+                <span className="last-post">{competitor.lastPost}</span>
+              </div>
 
-            <div className="spy-layout">
-                {/* Search Bar */}
-                <div className="search-bar glass-card">
-                    <Search size={20} />
-                    <input
-                        type="text"
-                        placeholder="ライバルのアカウント名やURLを入力..."
-                        className="search-input"
-                    />
-                    <button className="btn btn-primary">追加</button>
-
+              <div className="stats-grid">
+                <div className="stat">
+                  <Users size={16} />
+                  <div>
+                    <div className="stat-value">{competitor.followers.toLocaleString()}</div>
+                    <div className="stat-label">フォロワー</div>
+                  </div>
                 </div>
-
-                {/* Competitors Grid */}
-                <div className="competitors-grid">
-                    {competitors.map((competitor) => (
-                        <div key={competitor.id} className="competitor-card glass-card">
-                            <div className="card-header">
-                                <div className="name-row">
-                                    <span className="platform-icon">{getPlatformIcon(competitor.platform)}</span>
-                                    <h3>{competitor.name}</h3>
-                                </div>
-                                <span className="last-post">{competitor.lastPost}</span>
-                            </div>
-
-                            <div className="stats-grid">
-                                <div className="stat">
-                                    <Users size={16} />
-                                    <div>
-                                        <div className="stat-value">{competitor.followers.toLocaleString()}</div>
-                                        <div className="stat-label">フォロワー</div>
-                                    </div>
-                                </div>
-                                <div className="stat">
-                                    <TrendingUp size={16} />
-                                    <div>
-                                        <div className="stat-value">{competitor.engagement}%</div>
-                                        <div className="stat-label">エンゲージメント</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button className="btn btn-ghost btn-sm btn-full">
-                                <BarChart3 size={16} />
-                                詳細分析
-                            </button>
-                        </div>
-                    ))}
+                <div className="stat">
+                  <TrendingUp size={16} />
+                  <div>
+                    <div className="stat-value">{competitor.engagement}%</div>
+                    <div className="stat-label">エンゲージメント</div>
+                  </div>
                 </div>
+              </div>
 
-                {/* Coming Soon Banner */}
-                <div className="coming-soon-banner glass-card">
-                    <div className="banner-content">
-                        <h3>🕵️ AIライバル分析（準備中）</h3>
-                        <p>AIがライバルの投稿内容、エンゲージメント傾向、最適な投稿タイミングを分析します</p>
-                    </div>
-                </div>
+              <button
+                className="btn btn-ghost btn-sm btn-full"
+                onClick={() => handleDelete(competitor.id)}
+              >
+                <Trash2 size={16} />
+                削除
+              </button>
             </div>
+          ))}
+        </div>
 
-            <style jsx>{`
+        {/* Coming Soon Banner */}
+        <div className="coming-soon-banner glass-card">
+          <div className="banner-content">
+            <h3>🕵️ AIライバル分析（準備中）</h3>
+            <p>AIがライバルの投稿内容、エンゲージメント傾向、最適な投稿タイミングを分析します</p>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
         .spy-mode-page {
           max-width: 1200px;
           margin: 0 auto;
@@ -248,6 +274,6 @@ export default function SpyModePage() {
           }
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 }
