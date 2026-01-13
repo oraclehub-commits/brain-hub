@@ -1,180 +1,248 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckSquare, Plus, Trash2, Calendar, Tag } from 'lucide-react';
 
 type Priority = 'high' | 'medium' | 'low';
 type Status = 'todo' | 'in-progress' | 'done';
 
 interface Task {
-    id: string;
-    title: string;
-    description: string;
-    priority: Priority;
-    status: Status;
-    dueDate: string;
-    tags: string[];
+  id: string;
+  title: string;
+  description: string;
+  priority: Priority;
+  status: Status;
+  dueDate: string;
+  tags: string[];
 }
 
-const mockTasks: Task[] = [
-    {
-        id: '1',
-        title: 'LP制作の見積もり作成',
-        description: '新規クライアント向けのランディングページ制作',
-        priority: 'high',
-        status: 'in-progress',
-        dueDate: '2026-01-15',
-        tags: ['クライアントワーク', '制作'],
-    },
-    {
-        id: '2',
-        title: 'SNS投稿（週次）',
-        description: 'Instagram, X, Facebookへの定期投稿',
-        priority: 'medium',
-        status: 'todo',
-        dueDate: '2026-01-14',
-        tags: ['マーケティング', 'SNS'],
-    },
-];
 
 export default function TasksPage() {
-    const [tasks, setTasks] = useState<Task[]>(mockTasks);
-    const [filter, setFilter] = useState<Status | 'all'>('all');
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState<Status | 'all'>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    const filteredTasks = filter === 'all'
-        ? tasks
-        : tasks.filter(task => task.status === filter);
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-    const getPriorityColor = (priority: Priority) => {
-        switch (priority) {
-            case 'high': return '#ef4444';
-            case 'medium': return '#f59e0b';
-            case 'low': return '#10b981';
-        }
-    };
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/tasks');
+      const data = await response.json();
 
-    return (
-        <div className="tasks-page">
-            <header className="page-header">
-                <CheckSquare className="header-icon" size={24} />
-                <div>
-                    <h1>タスク管理</h1>
-                    <p className="header-subtitle">AIが優先順位を提案し、あなたの時間を最適化</p>
-                </div>
-            </header>
+      if (data.success) {
+        setTasks(data.tasks || []);
+      } else {
+        setError('タスクの取得に失敗しました');
+      }
+    } catch (err) {
+      setError('エラーが発生しました');
+      console.error('Failed to fetch tasks:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            <div className="tasks-layout">
-                {/* Filters */}
-                <div className="filter-bar glass-card">
-                    <div className="filter-tabs">
-                        <button
-                            className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-                            onClick={() => setFilter('all')}
-                        >
-                            すべて ({tasks.length})
-                        </button>
-                        <button
-                            className={`filter-tab ${filter === 'todo' ? 'active' : ''}`}
-                            onClick={() => setFilter('todo')}
-                        >
-                            未着手 ({tasks.filter(t => t.status === 'todo').length})
-                        </button>
-                        <button
-                            className={`filter-tab ${filter === 'in-progress' ? 'active' : ''}`}
-                            onClick={() => setFilter('in-progress')}
-                        >
-                            進行中 ({tasks.filter(t => t.status === 'in-progress').length})
-                        </button>
-                        <button
-                            className={`filter-tab ${filter === 'done' ? 'active' : ''}`}
-                            onClick={() => setFilter('done')}
-                        >
-                            完了 ({tasks.filter(t => t.status === 'done').length})
-                        </button>
-                    </div>
-                    <button className="btn btn-primary">
-                        <Plus size={18} />
-                        新規タスク
-                    </button>
-                </div>
+  const handleCreateTask = async (taskData: Omit<Task, 'id'>) => {
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: taskData.title,
+          description: taskData.description,
+          priority: taskData.priority,
+          status: taskData.status,
+          dueDate: taskData.dueDate,
+          tags: taskData.tags,
+        }),
+      });
 
-                {/* Task List */}
-                <div className="tasks-grid">
-                    {filteredTasks.length === 0 ? (
-                        <div className="empty-state glass-card">
-                            <CheckSquare size={48} className="empty-icon" />
-                            <h3>タスクがありません</h3>
-                            <p>新しいタスクを追加して、効率的に進めましょう！</p>
-                        </div>
-                    ) : (
-                        filteredTasks.map((task) => (
-                            <div key={task.id} className="task-card glass-card">
-                                <div className="task-header">
-                                    <div className="task-title-row">
-                                        <h3>{task.title}</h3>
-                                        <div
-                                            className="priority-badge"
-                                            style={{ backgroundColor: getPriorityColor(task.priority) }}
-                                        >
-                                            {task.priority === 'high' && '高'}
-                                            {task.priority === 'medium' && '中'}
-                                            {task.priority === 'low' && '低'}
-                                        </div>
-                                    </div>
-                                    <p className="task-description">{task.description}</p>
-                                </div>
+      const data = await response.json();
+      if (data.success) {
+        await fetchTasks(); // Refresh list
+      }
+    } catch (err) {
+      console.error('Failed to create task:', err);
+    }
+  };
 
-                                <div className="task-meta">
-                                    <div className="task-info">
-                                        <Calendar size={14} />
-                                        <span>{new Date(task.dueDate).toLocaleDateString('ja-JP')}</span>
-                                    </div>
-                                    <div className="task-tags">
-                                        {task.tags.map((tag) => (
-                                            <span key={tag} className="tag">
-                                                <Tag size={12} />
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
+  const handleUpdateStatus = async (taskId: string, newStatus: Status) => {
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: taskId, status: newStatus }),
+      });
 
-                                <div className="task-actions">
-                                    <select
-                                        value={task.status}
-                                        className="status-select"
-                                        onChange={(e) => {
-                                            const newTasks = tasks.map(t =>
-                                                t.id === task.id
-                                                    ? { ...t, status: e.target.value as Status }
-                                                    : t
-                                            );
-                                            setTasks(newTasks);
-                                        }}
-                                    >
-                                        <option value="todo">未着手</option>
-                                        <option value="in-progress">進行中</option>
-                                        <option value="done">完了</option>
-                                    </select>
-                                    <button className="btn btn-ghost btn-sm">
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
+      if (response.ok) {
+        await fetchTasks(); // Refresh list
+      }
+    } catch (err) {
+      console.error('Failed to update task:', err);
+    }
+  };
 
-                {/* Coming Soon Banner */}
-                <div className="coming-soon-banner glass-card">
-                    <div className="banner-content">
-                        <h3>🤖 AI タスク最適化（準備中）</h3>
-                        <p>AIがあなたの作業パターンを分析し、最適な優先順位とスケジュールを提案します</p>
-                    </div>
-                </div>
+  const handleDeleteTask = async (taskId: string) => {
+    if (!confirm('このタスクを削除しますか？')) return;
+
+    try {
+      const response = await fetch(`/api/tasks?id=${taskId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await fetchTasks(); // Refresh list
+      }
+    } catch (err) {
+      console.error('Failed to delete task:', err);
+    }
+  };
+
+  const filteredTasks = filter === 'all'
+    ? tasks
+    : tasks.filter(task => task.status === filter);
+
+  const getPriorityColor = (priority: Priority) => {
+    switch (priority) {
+      case 'high': return '#ef4444';
+      case 'medium': return '#f59e0b';
+      case 'low': return '#10b981';
+    }
+  };
+
+  return (
+    <div className="tasks-page">
+      <header className="page-header">
+        <CheckSquare className="header-icon" size={24} />
+        <div>
+          <h1>タスク管理</h1>
+          <p className="header-subtitle">AIが優先順位を提案し、あなたの時間を最適化</p>
+        </div>
+      </header>
+
+      <div className="tasks-layout">
+        {/* Filters */}
+        <div className="filter-bar glass-card">
+          <div className="filter-tabs">
+            <button
+              className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              すべて ({tasks.length})
+            </button>
+            <button
+              className={`filter-tab ${filter === 'todo' ? 'active' : ''}`}
+              onClick={() => setFilter('todo')}
+            >
+              未着手 ({tasks.filter(t => t.status === 'todo').length})
+            </button>
+            <button
+              className={`filter-tab ${filter === 'in-progress' ? 'active' : ''}`}
+              onClick={() => setFilter('in-progress')}
+            >
+              進行中 ({tasks.filter(t => t.status === 'in-progress').length})
+            </button>
+            <button
+              className={`filter-tab ${filter === 'done' ? 'active' : ''}`}
+              onClick={() => setFilter('done')}
+            >
+              完了 ({tasks.filter(t => t.status === 'done').length})
+            </button>
+          </div>
+          <button className="btn btn-primary">
+            <Plus size={18} />
+            新規タスク
+          </button>
+        </div>
+
+        {/* Task List */}
+        <div className="tasks-grid">
+          {loading ? (
+            <div className="empty-state glass-card">
+              <CheckSquare size={48} className="empty-icon animate-pulse" />
+              <h3>読み込み中...</h3>
             </div>
+          ) : error ? (
+            <div className="empty-state glass-card">
+              <h3>エラー</h3>
+              <p>{error}</p>
+              <button className="btn btn-primary" onClick={fetchTasks}>再試行</button>
+            </div>
+          ) : filteredTasks.length === 0 ? (
+            <div className="empty-state glass-card">
+              <CheckSquare size={48} className="empty-icon" />
+              <h3>タスクがありません</h3>
+              <p>新しいタスクを追加して、効率的に進めましょう！</p>
+            </div>
+          ) : (
+            filteredTasks.map((task) => (
+              <div key={task.id} className="task-card glass-card">
+                <div className="task-header">
+                  <div className="task-title-row">
+                    <h3>{task.title}</h3>
+                    <div
+                      className="priority-badge"
+                      style={{ backgroundColor: getPriorityColor(task.priority) }}
+                    >
+                      {task.priority === 'high' && '高'}
+                      {task.priority === 'medium' && '中'}
+                      {task.priority === 'low' && '低'}
+                    </div>
+                  </div>
+                  <p className="task-description">{task.description}</p>
+                </div>
 
-            <style jsx>{`
+                <div className="task-meta">
+                  <div className="task-info">
+                    <Calendar size={14} />
+                    <span>{new Date(task.dueDate).toLocaleDateString('ja-JP')}</span>
+                  </div>
+                  <div className="task-tags">
+                    {task.tags.map((tag) => (
+                      <span key={tag} className="tag">
+                        <Tag size={12} />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="task-actions">
+                  <select
+                    value={task.status}
+                    className="status-select"
+                    onChange={(e) => handleUpdateStatus(task.id, e.target.value as Status)}
+                  >
+                    <option value="todo">未着手</option>
+                    <option value="in-progress">進行中</option>
+                    <option value="done">完了</option>
+                  </select>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => handleDeleteTask(task.id)}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Coming Soon Banner */}
+        <div className="coming-soon-banner glass-card">
+          <div className="banner-content">
+            <h3>🤖 AI タスク最適化（準備中）</h3>
+            <p>AIがあなたの作業パターンを分析し、最適な優先順位とスケジュールを提案します</p>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
         .tasks-page {
           max-width: 1200px;
           margin: 0 auto;
@@ -375,6 +443,6 @@ export default function TasksPage() {
           }
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 }
