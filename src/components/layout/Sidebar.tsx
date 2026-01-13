@@ -138,9 +138,10 @@ export function Sidebar() {
         }
 
         .sidebar-logo {
-          padding: 1.5rem;
+          padding: 1rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.05);
           background: linear-gradient(to bottom, rgba(139, 92, 246, 0.05), transparent);
+          flex-shrink: 0;
         }
 
         .logo-container {
@@ -150,8 +151,8 @@ export function Sidebar() {
         }
 
         .logo-icon {
-          width: 42px;
-          height: 42px;
+          width: 36px;
+          height: 36px;
           flex-shrink: 0;
           filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.3));
         }
@@ -162,14 +163,14 @@ export function Sidebar() {
         }
 
         .logo-text {
-          font-size: 1.25rem;
+          font-size: 1.1rem;
           font-weight: 700;
           letter-spacing: -0.02em;
           line-height: 1.1;
         }
 
         .logo-sub {
-          font-size: 0.65rem;
+          font-size: 0.6rem;
           color: var(--text-muted);
           letter-spacing: 0.1em;
           text-transform: uppercase;
@@ -177,18 +178,19 @@ export function Sidebar() {
 
         .sidebar-nav {
           flex: 1;
-          padding: 1.5rem 1rem;
+          padding: 0.75rem 0.5rem;
           overflow-y: auto;
           /* Custom Scrollbar for Sidebar */
           scrollbar-width: thin;
           scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+          min-height: 0; /* Important for flex container scrolling */
         }
 
         .nav-list {
           list-style: none;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.25rem;
           padding: 0;
           margin: 0;
         }
@@ -197,17 +199,18 @@ export function Sidebar() {
           position: relative;
           display: flex;
           align-items: center;
-          gap: 1rem; /* Ensure gap between icon and text */
-          padding: 0.875rem 1rem;
-          border-radius: 12px;
+          gap: 0.75rem;
+          padding: 0.65rem 0.75rem;
+          border-radius: 8px;
           color: var(--text-secondary);
           text-decoration: none;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           font-weight: 500;
           transition: all var(--transition-base);
           border: 1px solid transparent;
           overflow: hidden;
-          white-space: nowrap; /* Prevent text wrapping */
+          white-space: nowrap;
+          flex-shrink: 0;
         }
 
         .nav-link:hover {
@@ -220,7 +223,7 @@ export function Sidebar() {
           color: var(--text-primary);
           background: linear-gradient(90deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
           border-color: rgba(139, 92, 246, 0.2);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .active-indicator {
@@ -229,10 +232,10 @@ export function Sidebar() {
           top: 50%;
           transform: translateY(-50%);
           width: 3px;
-          height: 24px;
+          height: 18px;
           background: var(--color-primary-500);
           border-radius: 0 2px 2px 0;
-          box-shadow: 0 0 8px var(--color-primary-500);
+          box-shadow: 0 0 6px var(--color-primary-500);
         }
 
         .nav-icon {
@@ -242,6 +245,8 @@ export function Sidebar() {
           color: var(--text-muted);
           transition: color var(--transition-base);
         }
+        
+        /* Adjust icon size indirectly via scale if needed, or rely on lucid-react props */
 
         .nav-link:hover .nav-icon,
         .nav-link.active .nav-icon {
@@ -249,63 +254,67 @@ export function Sidebar() {
         }
 
         .nav-badge {
-          font-size: 0.6rem;
-          padding: 0.2rem 0.5rem;
+          font-size: 0.55rem;
+          padding: 0.15rem 0.4rem;
           background: var(--color-primary-600);
           border-radius: 4px;
           color: white;
           font-weight: 700;
           letter-spacing: 0.05em;
+          margin-left: auto;
         }
 
         .sidebar-bottom {
-          padding: 1rem;
+          padding: 0.75rem;
           border-top: 1px solid rgba(255, 255, 255, 0.05);
           background: rgba(0, 0, 0, 0.2);
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 0.75rem;
+          flex-shrink: 0;
         }
 
         .pro-card {
           position: relative;
-          padding: 1rem;
-          margin-top: 0.5rem;
+          padding: 0.75rem;
+          margin-top: 0;
           background: linear-gradient(135deg, rgba(234, 179, 8, 0.05), rgba(234, 179, 8, 0.01));
           border: 1px solid rgba(234, 179, 8, 0.2);
           overflow: hidden;
-          order: 2; /* Ensure it stays at bottom visually if needed */
+          order: 2;
+          border-radius: 8px;
         }
 
         .pro-header {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.25rem;
         }
 
         .pro-title {
           font-weight: 700;
           color: var(--color-gold-400);
           letter-spacing: 0.05em;
+          font-size: 0.85rem;
         }
 
         .pro-desc {
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           color: var(--text-secondary);
-          margin-bottom: 0.75rem;
-          line-height: 1.4;
+          margin-bottom: 0.5rem;
+          line-height: 1.3;
         }
 
         .btn-upgrade {
           width: 100%;
-          padding: 0.5rem;
+          padding: 0.4rem;
           border: none;
           background: linear-gradient(135deg, var(--color-gold-500), var(--color-gold-600));
           color: #000;
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           font-weight: 700;
-          border-radius: 8px;
+          border-radius: 6px;
           cursor: pointer;
           transition: transform var(--transition-fast);
         }
@@ -322,7 +331,7 @@ export function Sidebar() {
           width: 60px;
           height: 60px;
           background: var(--color-gold-500);
-          opacity: 0.1;
+          opacity: 0.08;
           filter: blur(20px);
           pointer-events: none;
         }
