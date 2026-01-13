@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MessageSquare, Edit3, Target, CheckSquare, Archive, DollarSign, Sparkles, Brain } from 'lucide-react';
 import { DiagnosisResultModal } from '@/components/DiagnosisResultModal';
+import { createClient } from '@/lib/supabase/client';
 
 const quickActions = [
   {
@@ -41,11 +42,26 @@ export default function DashboardPage() {
   const [diagnosisResult, setDiagnosisResult] = useState<any>(null);
   const [showResultModal, setShowResultModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
   useEffect(() => {
     const initDashboard = async () => {
-      await checkPendingDiagnosis();
-      fetchDiagnosisResult();
+      // セッションの確認を待ってから同期処理を実行
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        await checkPendingDiagnosis();
+        await fetchDiagnosisResult();
+      } else {
+        // セッションがない場合でも、Auth状態の変化を監視
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          if (session) {
+            await checkPendingDiagnosis();
+            await fetchDiagnosisResult();
+          }
+        });
+        return () => subscription.unsubscribe();
+      }
     };
     initDashboard();
   }, []);
