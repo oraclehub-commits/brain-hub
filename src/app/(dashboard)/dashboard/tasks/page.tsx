@@ -23,9 +23,38 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Modal State
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newTask, setNewTask] = useState<{
+    title: string;
+    description: string;
+    priority: Priority;
+    dueDate: string;
+  }>({
+    title: '',
+    description: '',
+    priority: 'medium',
+    dueDate: ''
+  });
+
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  const submitNewTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleCreateTask({
+      // id is handled by backend
+      title: newTask.title,
+      description: newTask.description,
+      priority: newTask.priority,
+      status: 'todo',
+      dueDate: newTask.dueDate,
+      tags: []
+    } as any); // Type assertion for omit id
+    setIsCreateModalOpen(false);
+    setNewTask({ title: '', description: '', priority: 'medium', dueDate: '' });
+  };
 
   const fetchTasks = async () => {
     try {
@@ -153,7 +182,10 @@ export default function TasksPage() {
               完了 ({tasks.filter(t => t.status === 'done').length})
             </button>
           </div>
-          <button className="btn btn-primary">
+          <button
+            className="btn btn-primary"
+            onClick={() => setIsCreateModalOpen(true)}
+          >
             <Plus size={18} />
             新規タスク
           </button>
@@ -242,10 +274,153 @@ export default function TasksPage() {
         </div>
       </div>
 
+      {/* Create Task Modal */}
+      {isCreateModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content glass-card animate-fade-in">
+            <h2 className="modal-title">新規タスク作成</h2>
+            <form onSubmit={submitNewTask} className="task-form">
+              <div className="form-group">
+                <label>タイトル</label>
+                <input
+                  type="text"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  placeholder="例: SNS投稿のネタ出し"
+                  required
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>詳細</label>
+                <textarea
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  placeholder="タスクの詳細を入力..."
+                  rows={3}
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>優先度</label>
+                  <select
+                    value={newTask.priority}
+                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as Priority })}
+                    className="form-select"
+                  >
+                    <option value="high">高</option>
+                    <option value="medium">中</option>
+                    <option value="low">低</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>期限</label>
+                  <input
+                    type="date"
+                    value={newTask.dueDate}
+                    onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => setIsCreateModalOpen(false)}
+                >
+                  キャンセル
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  作成する
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
+        /* ... existing styles ... */
         .tasks-page {
           max-width: 1200px;
           margin: 0 auto;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            background: #1a1a24;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .task-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .form-input, .form-select {
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
         }
 
         .page-header {
@@ -443,6 +618,6 @@ export default function TasksPage() {
           }
         }
       `}</style>
-    </div>
+    </div >
   );
 }

@@ -30,9 +30,6 @@ const navItems: NavItem[] = [
   { href: '/dashboard/tasks', label: 'タスク管理', icon: <CheckSquare size={20} /> },
   { href: '/dashboard/archive', label: 'アーカイブ', icon: <Archive size={20} /> },
   { href: '/dashboard/finance', label: '収支ログ', icon: <DollarSign size={20} /> },
-];
-
-const bottomNavItems: NavItem[] = [
   { href: '/dashboard/referral', label: '招待', icon: <Share2 size={20} /> },
   { href: '/dashboard/settings', label: '設定', icon: <Settings size={20} /> },
 ];
@@ -66,7 +63,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Main Navigation */}
+      {/* Main Navigation - Unified */}
       <nav className="sidebar-nav">
         <ul className="nav-list">
           {navItems.map((item) => (
@@ -75,7 +72,9 @@ export function Sidebar() {
                 href={item.href}
                 className={`nav-link ${pathname === item.href ? 'active' : ''}`}
               >
-                <span className="nav-icon">{item.icon}</span>
+                <div className="nav-icon-wrapper">
+                  <span className="nav-icon">{item.icon}</span>
+                </div>
                 <span className="nav-label">{item.label}</span>
                 {item.badge && <span className="nav-badge oracle-glow">{item.badge}</span>}
                 {pathname === item.href && (
@@ -84,44 +83,32 @@ export function Sidebar() {
               </Link>
             </li>
           ))}
-        </ul>
-      </nav>
-
-      {/* Bottom Section */}
-      <div className="sidebar-bottom">
-        <ul className="nav-list bottom-list">
-          {bottomNavItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`nav-link sm ${pathname === item.href ? 'active' : ''}`}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label}</span>
-              </Link>
-            </li>
-          ))}
+          <li className="nav-divider" />
           <li>
-            <button className="nav-link sm logout-btn">
-              <span className="nav-icon"><LogOut size={18} /></span>
+            <button className="nav-link logout-btn">
+              <div className="nav-icon-wrapper">
+                <span className="nav-icon"><LogOut size={20} /></span>
+              </div>
               <span className="nav-label">ログアウト</span>
             </button>
           </li>
         </ul>
 
-        {/* Pro Upgrade Card (Sales Whisper) - Moved to bottom */}
-        <div className="pro-card glass-card">
-          <div className="pro-header">
-            <span className="pro-icon">💎</span>
-            <span className="pro-title">PROプラン</span>
+        {/* Pro Upgrade Card - Inside Nav Scroll Area or Fixed? keeping it inside to scroll together if height is small */}
+        <div className="pro-card-wrapper">
+          <div className="pro-card glass-card">
+            <div className="pro-header">
+              <span className="pro-icon">💎</span>
+              <span className="pro-title">PROプラン</span>
+            </div>
+            <p className="pro-desc">ビジネスを加速させる</p>
+            <button className="btn-upgrade">
+              アップグレード
+            </button>
+            <div className="pro-glow" />
           </div>
-          <p className="pro-desc">ビジネスを加速させる</p>
-          <button className="btn-upgrade">
-            アップグレード
-          </button>
-          <div className="pro-glow" />
         </div>
-      </div>
+      </nav>
 
       <style jsx>{`
         .sidebar {
@@ -129,7 +116,7 @@ export function Sidebar() {
           left: 1rem;
           top: 1rem;
           bottom: 1rem;
-          width: 260px;
+          width: 240px; /* Standard width */
           display: flex;
           flex-direction: column;
           z-index: 50;

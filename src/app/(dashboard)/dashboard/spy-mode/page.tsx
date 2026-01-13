@@ -72,7 +72,7 @@ export default function SpyModePage() {
         <Eye className="header-icon" size={24} />
         <div>
           <h1>Spy Mode</h1>
-          <p className="header-subtitle">ライバルの動向を密かに観察し、戦略を練る</p>
+          <p className="header-subtitle">手動入力＋AI分析で、ライバルの動向を丸裸にする</p>
         </div>
       </header>
 
@@ -132,8 +132,8 @@ export default function SpyModePage() {
         {/* Coming Soon Banner */}
         <div className="coming-soon-banner glass-card">
           <div className="banner-content">
-            <h3>🕵️ AIライバル分析（準備中）</h3>
-            <p>AIがライバルの投稿内容、エンゲージメント傾向、最適な投稿タイミングを分析します</p>
+            <h3>🤖 AI分析エンジン（準備中）</h3>
+            <p>収集したデータをAIが多角的に分析し、勝ち筋を導き出します</p>
           </div>
         </div>
       </div>
@@ -274,6 +274,6 @@ export default function SpyModePage() {
           }
         }
       `}</style>
-    </div>
+    </div >
   );
 }
