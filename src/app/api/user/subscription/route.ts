@@ -21,7 +21,7 @@ export async function GET() {
 
         const isPro =
             subscription?.tier === 'PRO' &&
-            (!subscription.pro_expires_at || new Date(subscription.pro_expires_at) > new Date());
+            (!subscription?.pro_expires_at || new Date(subscription.pro_expires_at) > new Date());
 
         return NextResponse.json({
             success: true,

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
             .single();
 
         const userTier = subscription?.tier || 'FREE';
-        const isPro = userTier === 'PRO' && (!subscription.pro_expires_at || new Date(subscription.pro_expires_at) > new Date());
+        const isPro = userTier === 'PRO' && (!subscription?.pro_expires_at || new Date(subscription.pro_expires_at) > new Date());
 
         // Get or create session
         let session;
