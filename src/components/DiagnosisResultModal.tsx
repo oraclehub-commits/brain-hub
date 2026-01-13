@@ -24,7 +24,7 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
 
   const content = (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content result-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="result-modal-wrapper" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>
           <X size={24} />
         </button>
@@ -80,7 +80,7 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
             overflow-y: auto;
           }
 
-          .result-modal {
+          .result-modal-wrapper {
             background: linear-gradient(135deg, rgba(17, 24, 39, 0.98), rgba(31, 41, 55, 0.98));
             border: 1px solid rgba(139, 92, 246, 0.5);
             border-radius: 20px;
@@ -215,7 +215,7 @@ export function DiagnosisResultModal({ result, onClose }: DiagnosisResultModalPr
           }
 
           @media (max-width: 768px) {
-            .result-modal {
+            .result-modal-wrapper {
               padding: 1.5rem;
             }
 
