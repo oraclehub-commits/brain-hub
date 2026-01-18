@@ -1,21 +1,35 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize Gemini API
-const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+// Initialize Gemini API lazily
+let genAI: GoogleGenerativeAI | null = null;
 
-if (!apiKey) {
-    throw new Error('GOOGLE_GENERATIVE_AI_API_KEY is not set in environment variables');
-}
-
-const genAI = new GoogleGenerativeAI(apiKey);
+const getGenAI = () => {
+    if (!genAI) {
+        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        if (!apiKey) {
+            console.error('GOOGLE_GENERATIVE_AI_API_KEY is not set');
+            return null;
+        }
+        genAI = new GoogleGenerativeAI(apiKey);
+    }
+    return genAI;
+};
 
 /**
  * Generate content using Gemini API
  */
 export async function generateContent(prompt: string, systemInstruction?: string) {
     try {
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash-lite',
+        const ai = getGenAI();
+        if (!ai) {
+            return {
+                success: false,
+                error: 'API key verification failed. Please check GOOGLE_GENERATIVE_AI_API_KEY.',
+            };
+        }
+
+        const model = ai.getGenerativeModel({
+            model: 'gemini-2.0-flash-lite',
             systemInstruction,
         });
 
@@ -60,8 +74,16 @@ export async function generateChat(
     systemInstruction?: string
 ) {
     try {
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash-lite',
+        const ai = getGenAI();
+        if (!ai) {
+            return {
+                success: false,
+                error: 'API key verification failed. Please check GOOGLE_GENERATIVE_AI_API_KEY.',
+            };
+        }
+
+        const model = ai.getGenerativeModel({
+            model: 'gemini-2.0-flash-lite',
             systemInstruction,
         });
 
@@ -99,8 +121,16 @@ export async function sendChatMessage(
     systemInstruction?: string
 ) {
     try {
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash-lite',
+        const ai = getGenAI();
+        if (!ai) {
+            return {
+                success: false,
+                error: 'API key verification failed. Please check GOOGLE_GENERATIVE_AI_API_KEY.',
+            };
+        }
+
+        const model = ai.getGenerativeModel({
+            model: 'gemini-2.0-flash-lite',
             systemInstruction,
         });
 

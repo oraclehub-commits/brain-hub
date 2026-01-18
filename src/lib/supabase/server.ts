@@ -28,28 +28,22 @@ export async function createClient() {
 
 // Admin client with service role key (bypasses RLS)
 export async function createAdminClient() {
-    const cookieStore = await cookies();
-
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    console.log('🔑 Service Role Key exists:', !!serviceRoleKey);
-    console.log('🔑 Service Role Key starts with:', serviceRoleKey?.substring(0, 20) + '...');
+    // Note: We do NOT pass cookies here. This client should be purely for admin tasks
+    // and should not inherit the current user's session.
+    // We use a dummy cookie adapter to satisfy the type requirement if needed, 
+    // or typically createServerClient allows empty options or we can use supabase-js directly.
+    // But sticking to createServerClient for consistency, just with empty cookies.
 
     return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        serviceRoleKey!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
         {
             cookies: {
                 getAll() {
-                    return cookieStore.getAll();
+                    return [];
                 },
                 setAll(cookiesToSet) {
-                    try {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            cookieStore.set(name, value, options)
-                        );
-                    } catch {
-                        // Server Component context - ignore
-                    }
+                    // No-op
                 },
             },
         }

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { name, platform, url } = await request.json();
+        const { name, platform, url, followers, postFrequency, recentPosts, notes } = await request.json();
 
         if (!name || !platform) {
             return NextResponse.json({ error: 'Name and platform are required' }, { status: 400 });
@@ -58,8 +58,11 @@ export async function POST(request: NextRequest) {
                 name,
                 platform,
                 url,
-                followers: 0,
-                engagement: 0,
+                followers: followers || '',
+                post_frequency: postFrequency || '',
+                recent_posts: recentPosts || [],
+                notes: notes || '',
+                // engagement field removed as per new schema
             })
             .select()
             .single();

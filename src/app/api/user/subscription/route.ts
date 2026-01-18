@@ -29,6 +29,18 @@ export async function GET() {
             proExpiresAt: subscription?.pro_expires_at,
             proSource: subscription?.pro_source,
             referralCount: subscription?.referral_count || 0,
+            features: {
+                // Finance
+                canExportCsv: isPro,
+                canExportYayoi: isPro,
+                canExportFreee: isPro,
+                financeHistoryLimit: isPro ? 'unlimited' : '3_months',
+                // Archive
+                driveBackup: isPro,
+                maxStorage: isPro ? 'unlimited' : '100MB',
+                // Spy Mode
+                maxCompetitors: isPro ? 20 : 1,
+            }
         });
     } catch (error: any) {
         console.error('Subscription API Error:', error);

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Create finance log
-        const { type, amount, category, description, date } = body;
+        const { type, amount, category, description, date, tax_rate, transaction_partner, notes, receipt_url } = body;
 
         if (!type || !amount) {
             return NextResponse.json({ error: 'Type and amount are required' }, { status: 400 });
@@ -88,6 +88,10 @@ export async function POST(request: NextRequest) {
                 category: category || '',
                 description: description || '',
                 date: date || new Date().toISOString(),
+                tax_rate: tax_rate || '',
+                transaction_partner: transaction_partner || '',
+                notes: notes || '',
+                receipt_url: receipt_url || '',
             })
             .select()
             .single();

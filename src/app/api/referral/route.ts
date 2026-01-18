@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 
 const REFERRALS_FOR_PRO = 3;
 const PRO_DURATION_DAYS = 30;
@@ -62,7 +62,8 @@ export async function GET() {
 // POST: Redeem a referral code
 export async function POST(request: NextRequest) {
     try {
-        const supabase = await createClient();
+        const supabase = await createClient(); // Normal client for auth check
+        const adminClient = await createAdminClient(); // Admin client for DB ops
 
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
@@ -75,12 +76,15 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Referral code is required' }, { status: 400 });
         }
 
-        // Find the referrer by code
-        const { data: referrer } = await supabase
+        // Find the referrer by code (Use Admin Client to bypass RLS)
+        const { data: referrer, error: referrerError } = await adminClient
             .from('users')
-            .select('id')
-            .eq('referral_code', referralCode.toUpperCase())
+            .select('id, referral_code')
+            .ilike('referral_code', referralCode) // Case insensitive match
             .single();
+
+        if (referrerError) console.error('🔍 Search Error:', referrerError);
+        console.log('🔍 Search Result:', referrer);
 
         if (!referrer) {
             return NextResponse.json({ error: 'Invalid referral code' }, { status: 400 });
@@ -91,8 +95,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Cannot use your own referral code' }, { status: 400 });
         }
 
-        // Check if already referred
-        const { data: existingReferral } = await supabase
+        // Check if already referred (Use Admin Client)
+        const { data: existingReferral } = await adminClient
             .from('referrals')
             .select('id')
             .eq('referred_id', user.id)
@@ -102,12 +106,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'You have already used a referral code' }, { status: 400 });
         }
 
-        // Create referral record
-        const { error: referralError } = await supabase
+        // Create referral record (Use Admin Client)
+        const { error: referralError } = await adminClient
             .from('referrals')
             .insert({
                 referrer_id: referrer.id,
                 referred_id: user.id,
+                referral_code: referralCode.toUpperCase(), // Satisfy Not-Null constraint
                 reward_claimed: false,
             });
 
@@ -116,8 +121,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to process referral' }, { status: 500 });
         }
 
-        // Update referrer's count
-        const { data: referrerSub } = await supabase
+        // Update referrer's count (Use Admin Client)
+        const { data: referrerSub } = await adminClient
             .from('subscriptions')
             .select('referral_count')
             .eq('user_id', referrer.id)
@@ -130,7 +135,7 @@ export async function POST(request: NextRequest) {
             const proExpires = new Date();
             proExpires.setDate(proExpires.getDate() + PRO_DURATION_DAYS);
 
-            await supabase
+            await adminClient
                 .from('subscriptions')
                 .update({
                     tier: 'PRO',
@@ -140,17 +145,17 @@ export async function POST(request: NextRequest) {
                 })
                 .eq('user_id', referrer.id);
         } else {
-            await supabase
+            await adminClient
                 .from('subscriptions')
                 .update({ referral_count: newCount })
                 .eq('user_id', referrer.id);
         }
 
-        // Grant Pro to the referred user as well
+        // Grant Pro to the referred user as well (Use Admin Client)
         const referredProExpires = new Date();
         referredProExpires.setDate(referredProExpires.getDate() + PRO_DURATION_DAYS);
 
-        await supabase
+        await adminClient
             .from('subscriptions')
             .update({
                 tier: 'PRO',
@@ -160,14 +165,14 @@ export async function POST(request: NextRequest) {
             .eq('user_id', user.id);
 
         // Mark referral as rewarded
-        await supabase
+        await adminClient
             .from('referrals')
             .update({ reward_claimed: true })
             .eq('referrer_id', referrer.id)
             .eq('referred_id', user.id);
 
         // Log behavior
-        await supabase.from('behavior_logs').insert({
+        await adminClient.from('behavior_logs').insert({
             user_id: user.id,
             action_type: 'referral_share',
             payload: { referrer_id: referrer.id, type: 'redeemed' },
@@ -176,14 +181,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             data: {
-                message: 'Referral code applied! You now have 30 days of Pro mode.',
+                message: '招待コードが適用されました！30日間のPROモードが有効になりました🎉',
                 proExpiresAt: referredProExpires.toISOString(),
             },
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Redeem referral error:', error);
-        return NextResponse.json({ error: 'Failed to process referral' }, { status: 500 });
+        return NextResponse.json({
+            error: '招待の処理に失敗しました: ' + (error.message || String(error)),
+            details: error.stack
+        }, { status: 500 });
     }
 }
 

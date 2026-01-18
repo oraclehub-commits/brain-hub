@@ -93,9 +93,12 @@ export default function TasksPage() {
       const data = await response.json();
       if (data.success) {
         await fetchTasks(); // Refresh list
+      } else {
+        alert(`タスク作成に失敗しました: ${data.error || '不明なエラー'}`);
       }
     } catch (err) {
       console.error('Failed to create task:', err);
+      alert('エラーが発生しました。詳細はコンソールを確認してください。');
     }
   };
 

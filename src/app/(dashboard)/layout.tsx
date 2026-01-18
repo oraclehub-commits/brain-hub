@@ -2,12 +2,20 @@
 
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
+import LineMissionModal from '@/components/LineMissionModal';
+import LineReminderBanner from '@/components/LineReminderBanner';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [lineUser, setLineUser] = useState<{ connected: boolean; loading: boolean }>({ connected: false, loading: true });
+  const [showMissionModal, setShowMissionModal] = useState(false);
+  const [showReminderBanner, setShowReminderBanner] = useState(false);
+
   // TODO: Fetch user data and subscription from Supabase
   const mockUser = {
     name: 'ゲストユーザー',
@@ -23,6 +31,52 @@ export default function DashboardLayout({
     referral_count: 0,
   };
 
+  useEffect(() => {
+    async function checkLineConnection() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLineUser({ connected: false, loading: false });
+        return;
+      }
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('line_user_id')
+        .eq('id', user.id)
+        .single();
+
+      const hasLineConnection = !!userData?.line_user_id;
+      setLineUser({ connected: hasLineConnection, loading: false });
+
+      // Only show if not connected
+      if (!hasLineConnection) {
+        // Check if modal was postponed
+        const postponedAt = localStorage.getItem('line_mission_postponed');
+        if (postponedAt) {
+          const daysSincePostponed = (Date.now() - parseInt(postponedAt)) / (1000 * 60 * 60 * 24);
+          if (daysSincePostponed < 3) {
+            // Show banner instead of modal during postpone period
+            setShowReminderBanner(true);
+            return;
+          }
+        }
+
+        // Check if this is first time (show modal)
+        const hasSeenModal = localStorage.getItem('line_mission_shown');
+        if (!hasSeenModal) {
+          setShowMissionModal(true);
+          localStorage.setItem('line_mission_shown', 'true');
+        } else {
+          setShowReminderBanner(true);
+        }
+      }
+    }
+
+    checkLineConnection();
+  }, []);
+
   return (
     <div className="dashboard-layout">
       {/* Background Ambience */}
@@ -35,6 +89,23 @@ export default function DashboardLayout({
         avatarUrl={mockUser.avatarUrl || undefined}
         subscription={mockSubscription}
       />
+      {/* LINE Integration Components */}
+      {!lineUser.loading && !lineUser.connected && (
+        <>
+          <LineMissionModal
+            isOpen={showMissionModal}
+            onClose={() => setShowMissionModal(false)}
+            onPostpone={() => {
+              setShowMissionModal(false);
+              setShowReminderBanner(true);
+            }}
+          />
+          {showReminderBanner && (
+            <LineReminderBanner onDismiss={() => setShowReminderBanner(false)} />
+          )}
+        </>
+      )}
+
       <main className="dashboard-main">
         {children}
       </main>

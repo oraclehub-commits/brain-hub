@@ -1,7 +1,8 @@
 'use client';
 
+import { createClient } from '@/lib/supabase/client';
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, History, Trash2 } from 'lucide-react';
+import { Send, Sparkles, History, Trash2, Save } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -37,6 +38,10 @@ export default function OraclePage() {
   const [totalSessions, setTotalSessions] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // New State for Export
+  const [isExporting, setIsExporting] = useState(false);
+  const supabase = createClient();
 
   // Fetch sessions and subscription info on mount
   useEffect(() => {
@@ -124,6 +129,58 @@ export default function OraclePage() {
     setShowSessions(false);
   };
 
+  const handleAutoExport = async () => {
+    if (messages.length === 0) return;
+
+    setIsExporting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.provider_token) {
+        alert('Google Drive連携がされていません。アーカイブページで連携してください。');
+        return;
+      }
+
+      const title = `Log_${new Date().toLocaleDateString('ja-JP').replace(/\//g, '-')}_${messages[0].content.slice(0, 10)}...`;
+      const content = messages.map(m => `## ${m.role}\n${m.content}\n\n`).join('---\n\n');
+
+      const res = await fetch('/api/archives', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'export',
+          provider_token: session.provider_token,
+          title,
+          content,
+          summary: 'AI軍師との対話ログ',
+          file_type: 'chat_log'
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('Driveにアーカイブしました！');
+      } else {
+        console.error('Export failed:', data.error);
+      }
+    } catch (err) {
+      console.error('Export error:', err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleClearWithConfirm = async () => {
+    if (messages.length > 0) {
+      if (confirm('会話を終了しますか？\nOKを押すとGoogle Driveにアーカイブして終了します。')) {
+        await handleAutoExport();
+        createNewSession();
+      }
+    } else {
+      createNewSession();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -191,10 +248,6 @@ export default function OraclePage() {
     }
   };
 
-  const clearChat = () => {
-    createNewSession();
-  };
-
   return (
     <div className="oracle-page">
       {/* Header */}
@@ -215,8 +268,13 @@ export default function OraclePage() {
             <History size={18} />
             {sessions.length > 0 && <span className="badge">{sessions.length}</span>}
           </button>
-          <button className="btn btn-ghost" onClick={clearChat} title="新規会話">
-            <Trash2 size={18} />
+          <button
+            className="btn btn-ghost"
+            onClick={handleClearWithConfirm}
+            title="保存して終了"
+            disabled={isExporting}
+          >
+            {isExporting ? <span className="loading-spinner" /> : <Save size={18} />}
           </button>
         </div>
       </header>

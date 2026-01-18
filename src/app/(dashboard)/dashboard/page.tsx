@@ -39,25 +39,34 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
+  /* Existing State */
   const [diagnosisResult, setDiagnosisResult] = useState<any>(null);
   const [showResultModal, setShowResultModal] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  /* New Stats State */
+  const [stats, setStats] = useState({
+    weeklyTasks: 0,
+    weeklyPosts: 0,
+    weeklyRevenue: 0
+  });
+
   const supabase = createClient();
 
   useEffect(() => {
     const initDashboard = async () => {
-      // セッションの確認を待ってから同期処理を実行
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
         await checkPendingDiagnosis();
         await fetchDiagnosisResult();
+        await fetchStats();
       } else {
-        // セッションがない場合でも、Auth状態の変化を監視
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (session) {
             await checkPendingDiagnosis();
             await fetchDiagnosisResult();
+            await fetchStats();
           }
         });
         return () => subscription.unsubscribe();
@@ -66,15 +75,25 @@ export default function DashboardPage() {
     initDashboard();
   }, []);
 
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/dashboard/stats');
+      const data = await response.json();
+      if (data.success && data.stats) {
+        setStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  };
+
+  /* Diagnosis Sync & Fetch Logic */
   const checkPendingDiagnosis = async () => {
     try {
       const pendingDiagnosis = localStorage.getItem('pendingDiagnosis');
       if (pendingDiagnosis) {
         const result = JSON.parse(pendingDiagnosis);
-
-        console.log('📝 Syncing diagnosis result:', result);
-
-        // サーバーに保存
+        // Sync to server
         const response = await fetch('/api/diagnosis', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -84,17 +103,11 @@ export default function DashboardPage() {
             solution: result.solution
           })
         });
-
         const data = await response.json();
-
         if (!response.ok) {
-          console.error('❌ Failed to sync diagnosis:', response.status, data);
-          alert(`診断結果の保存に失敗しました: ${data.error || 'Unknown error'}`);
+          console.error('❌ Failed to sync diagnosis:', data);
           return;
         }
-
-        console.log('✅ Diagnosis synced successfully');
-        // 保存成功したらローカルストレージをクリア
         localStorage.removeItem('pendingDiagnosis');
       }
     } catch (error) {
@@ -115,6 +128,7 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
   return (
     <div className="dashboard-home">
       {/* Welcome Section */}
@@ -205,15 +219,15 @@ export default function DashboardPage() {
         <h2 className="section-title">今週の活動</h2>
         <div className="stats-grid">
           <div className="stat-card glass-card">
-            <div className="stat-value text-gradient">12</div>
-            <div className="stat-label">相談回数</div>
+            <div className="stat-value text-gradient">¥{stats.weeklyRevenue.toLocaleString()}</div>
+            <div className="stat-label">週間収益</div>
           </div>
           <div className="stat-card glass-card">
-            <div className="stat-value text-gradient">8</div>
+            <div className="stat-value text-gradient">{stats.weeklyPosts}</div>
             <div className="stat-label">SNS投稿</div>
           </div>
           <div className="stat-card glass-card">
-            <div className="stat-value text-gradient">15</div>
+            <div className="stat-value text-gradient">{stats.weeklyTasks}</div>
             <div className="stat-label">完了タスク</div>
           </div>
           <div className="stat-card glass-card">
@@ -535,6 +549,6 @@ export default function DashboardPage() {
           }
         }
       `}</style>
-    </div>
+    </div >
   );
 }
